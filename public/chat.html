@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat - Rencontre</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="responsive.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffe3e3, #fff3f3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 400px;
+      height: 600px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ff5f6d;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+}
+
+.chat-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.chat-header img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+.chat-header span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+#recipientLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  gap: 10px;
+  flex: 1;
+}
+
+#recipientLink:hover {
+  opacity: 0.9;
+}
+
+
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #fdfdfd;
+    }
+
+    .message {
+      padding: 10px 15px;
+      border-radius: 20px;
+      margin: 8px 0;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    .message.sent {
+      background-color: #ffccd5;
+      align-self: flex-end;
+    }
+
+    .message.received {
+      background-color: #f1f0f0;
+      align-self: flex-start;
+    }
+
+    .message-input-container {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      background-color: #fff;
+    }
+
+    .message-input-container input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 25px;
+      border: 1px solid #ddd;
+      margin-right: 10px;
+      outline: none;
+    }
+
+    .message-input-container button {
+      background-color: #ff5f6d;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .message-input-container button:hover {
+      background-color: #e94e5b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+   <div class="chat-header" id="chatHeader">
+  <button id="backButton" onclick="window.location.href='swipe.html'">←</button>
+  <img id="recipientPhoto" src="default.jpg" alt="Photo profil" />
+  <span id="recipientName">Discussion</span>
+</div>
+
+
+    <div class="messages" id="messages"></div>
+    <div class="message-input-container">
+      <input type="text" id="messageInput" placeholder="Écris un message..." />
+      <button onclick="sendMessage()">Envoyer</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function getUserIdFromToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      try {
+        const payloadBase64 = token.split('.')[1];
+        const payloadDecoded = atob(payloadBase64);
+        const payload = JSON.parse(payloadDecoded);
+        return payload.userId || payload.id || payload._id;
+      } catch (err) {
+        console.error("Erreur JWT :", err);
+        return null;
+      }
+    }
+
+    function getReceiverIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("receiverId");
+    }
+
+    const currentUserId = getUserIdFromToken();
+    const receiverId = getReceiverIdFromURL();
+
+    if (!currentUserId || !receiverId) {
+      alert("Erreur d'identification utilisateur.");
+      throw new Error("currentUserId ou receiverId manquant.");
+    }
+
+    // Réception temps réel
+    socket.on(`receiveMessage:${currentUserId}`, (data) => {
+      if (data.senderId === receiverId) {
+        appendMessage(data.message, "received");
+      }
+    });
+
+    async function loadMessages() {
+      try {
+        const res = await fetch(`/api/messages/${receiverId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        });
+
+        if (!res.ok) throw new Error('Erreur chargement messages');
+
+        const messages = await res.json();
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '';
+
+        messages.forEach(msg => {
+          const type = msg.sender === currentUserId ? 'sent' : 'received';
+          appendMessage(msg.content, type);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function appendMessage(content, type) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + type;
+      msgDiv.textContent = content;
+      document.getElementById('messages').appendChild(msgDiv);
+      document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const content = input.value.trim();
+      if (!content) return;
+
+      try {
+        const res = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          },
+          body: JSON.stringify({
+            receiver: receiverId,
+            content
+          })
+        });
+
+        if (!res.ok) throw new Error('Erreur envoi message');
+
+        input.value = '';
+        appendMessage(content, 'sent');
+
+        // Émettre via Socket.io
+        socket.emit('sendMessage', {
+          senderId: currentUserId,
+          receiverId,
+          message: content
+        });
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.onload = loadMessages;
+  </script>
+
+  <!-- animation entre pages -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+    });
+
+    document.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", function (e) {
+        const target = link.getAttribute("href");
+        if (target && !target.startsWith("#") && !target.startsWith("javascript")) {
+          e.preventDefault();
+          document.body.classList.remove("fade-in");
+          document.body.style.opacity = 0;
+          setTimeout(() => {
+            window.location.href = target;
+          }, 500);
+        }
+      });
+    });
+  </script>
+<script>
+  async function loadReceiverName() {
+    try {
+      const res = await fetch(`/api/users/${receiverId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      });
+
+      if (!res.ok) throw new Error("Impossible de charger le destinataire");
+
+      const user = await res.json();
+
+      const nameElement = document.getElementById("receiverName");
+      const avatar = document.getElementById("receiverAvatar");
+
+      nameElement.textContent = "Discussion avec " + user.name;
+
+      // Affiche la photo de profil si elle existe
+      if (user.profilePictures && user.profilePictures.length > 0) {
+        avatar.src = user.profilePictures[0];
+        avatar.style.display = "inline-block";
+      }
+    } catch (err) {
+      console.error("Erreur lors du chargement du nom ou de la photo :", err);
+    }
+  }
+
+  window.onload = () => {
+    loadMessages();
+    loadReceiverName();
+  };
+</script>
+
+
+
+</body>
+</html>

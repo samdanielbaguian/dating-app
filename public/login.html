@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion - Rencontre</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="responsive.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ff5e80;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 0.9rem;
+      background: #ff5e80;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .login-container button:hover {
+      background: #e14c6d;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 1.2rem 0;
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #ccc;
+    }
+
+    .divider::before {
+      left: 0;
+    }
+
+    .divider::after {
+      right: 0;
+    }
+
+    .google-btn {
+      background: white;
+      color: #555;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .google-btn img {
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Connexion</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Adresse e-mail" required />
+      <input type="password" id="password" placeholder="Mot de passe" required />
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <a href="/api/auth/google" class="google-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+      Se connecter avec Google
+    </a>
+
+    <div class="footer-text">
+      Pas encore inscrit ? <a href="register.html">Créer un compte</a>
+    </div>
+  </div>
+
+ <script>
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.require2FA) {
+          // Si 2FA est activé, on redirige vers la vérification
+          localStorage.setItem("tempToken", data.tempToken); // temporaire
+          window.location.href = "/verify-2fa.html";
+        } else if (data.token && data.refreshToken) {
+          // Connexion classique
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("refreshToken", data.refreshToken);
+          window.location.href = "/index.html";
+        } else {
+          alert("Réponse inattendue du serveur.");
+        }
+      } else {
+        alert(data.message || "Erreur de connexion");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la connexion.");
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+
+  document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", function (e) {
+      const target = link.getAttribute("href");
+      if (target && !target.startsWith("#") && !target.startsWith("javascript")) {
+        e.preventDefault();
+        document.body.classList.remove("fade-in");
+        document.body.style.opacity = 0;
+        setTimeout(() => {
+          window.location.href = target;
+        }, 500);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

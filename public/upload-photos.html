@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Photos et Préférences</title>
+  <link rel="stylesheet" href="upload-photos.css" />
+  <style>
+    .preview-container {
+      position: relative;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .preview-container img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+
+    .preview-container button {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>photo et</span><br>préférences</h1>
+
+    <div class="photos-section">
+      <label>Photo de profil</label>
+      <div class="preview-container" id="profilePreviewContainer">
+        <label class="photo-slot">
+          <input type="file" id="profilePicture" accept="image/*" style="display: none;" />
+          <img id="profilePreview" src="https://via.placeholder.com/70" alt="Photo" />
+        </label>
+        <button id="removeProfile" style="display: none;">❌</button>
+      </div>
+
+      <!-- Remplace uniquement cette section dans ton HTML existant -->
+<label>Autres photos</label>
+<p>Ajouter le maximum de photos augmente vos chances de matching</p>
+<div id="otherPhotosPreview" class="photo-slots other-photo-slots">
+
+  <!-- Slots cliquables vides dès le départ -->
+  <div class="photo-slot" data-index="0">
+    <input type="file" accept="image/*" class="hidden-file" />
+    <img src="https://via.placeholder.com/70" alt="Photo" />
+    <button class="remove-photo" style="display: none;">❌</button>
+  </div>
+  <div class="photo-slot" data-index="1">
+    <input type="file" accept="image/*" class="hidden-file" />
+    <img src="https://via.placeholder.com/70" alt="Photo" />
+    <button class="remove-photo" style="display: none;">❌</button>
+  </div>
+  <div class="photo-slot" data-index="2">
+    <input type="file" accept="image/*" class="hidden-file" />
+    <img src="https://via.placeholder.com/70" alt="Photo" />
+    <button class="remove-photo" style="display: none;">❌</button>
+  </div>
+</div>
+
+
+    <div class="infos-section">
+      <label for="bio">Bio</label>
+      <textarea id="bio" placeholder="Dites quelque chose sur vous..."></textarea>
+
+      <label for="distance">Distance max : <span id="distanceValue">10</span> km</label>
+      <input type="range" id="distance" min="1" max="100" value="10" />
+
+      <label for="ageRange">Préférence d’âge : <span id="ageValue">18-40</span> ans</label>
+      <input type="range" id="ageMin" min="18" max="99" value="18" />
+      <input type="range" id="ageMax" min="18" max="99" value="40" />
+
+      <label for="languages">Langue parlée(s) (optionnel)</label>
+      <input type="text" id="languages" placeholder="ex: français, anglais" />
+    </div>
+
+    <div class="footer-buttons">
+      <button class="back-button" onclick="window.location.href='complete-profile.html'">←</button>
+      <button class="submit-button" onclick="submitPhotos()">C’est parti !</button>
+    </div>
+  </div>
+<script>
+  const profileInput = document.getElementById('profilePicture');
+  const profilePreview = document.getElementById('profilePreview');
+  const removeProfileBtn = document.getElementById('removeProfile');
+
+  profileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      profilePreview.src = URL.createObjectURL(file);
+      removeProfileBtn.style.display = 'block';
+    }
+  });
+
+  removeProfileBtn.addEventListener('click', function () {
+    profileInput.value = '';
+    profilePreview.src = 'https://via.placeholder.com/70';
+    this.style.display = 'none';
+  });
+
+  const photoSlots = document.querySelectorAll('.photo-slot');
+  let otherFiles = [null, null, null]; // tableau pour stocker 3 fichiers max
+
+  photoSlots.forEach((slot, index) => {
+    const fileInput = slot.querySelector('.hidden-file');
+    const previewImg = slot.querySelector('img');
+    const removeBtn = slot.querySelector('.remove-photo');
+
+    previewImg.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        previewImg.src = URL.createObjectURL(file);
+        removeBtn.style.display = 'block';
+        otherFiles[index] = file;
+      }
+    });
+
+    removeBtn.addEventListener('click', function () {
+      otherFiles[index] = null;
+      fileInput.value = '';
+      previewImg.src = 'https://via.placeholder.com/70';
+      removeBtn.style.display = 'none';
+    });
+  });
+
+ // Affichage valeurs sliders
+    document.getElementById('distance').addEventListener('input', function () {
+      document.getElementById('distanceValue').innerText = this.value;
+    });
+
+    const ageMin = document.getElementById('ageMin');
+    const ageMax = document.getElementById('ageMax');
+    const ageValue = document.getElementById('ageValue');
+
+    function updateAgeLabel() {
+  let min = Number(ageMin.value);
+  let max = Number(ageMax.value);
+
+  if (min > max) {
+    // Swap automatiquement si l'utilisateur inverse
+    [min, max] = [max, min];
+    ageMin.value = min;
+    ageMax.value = max;
+  }
+
+  ageValue.innerText = `${min}-${max}`;
+}
+
+
+    ageMin.addEventListener('input', updateAgeLabel);
+    ageMax.addEventListener('input', updateAgeLabel);
+    updateAgeLabel();
+
+  async function submitPhotos() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Vous devez être connecté pour continuer.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    const profileFile = profileInput.files[0];
+    if (profileFile) {
+      formData.append("profilePictures", profileFile);
+    }
+
+    otherFiles.forEach((file) => {
+      if (file) {
+        formData.append("profilePictures", file);
+      }
+    });
+
+    try {
+      const uploadResponse = await fetch("/api/photo/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const uploadResult = await uploadResponse.json();
+
+      if (!uploadResponse.ok) {
+        throw new Error(uploadResult.message || "Erreur lors de l'upload");
+      }
+
+      console.log("Photos uploadées :", uploadResult);
+
+      // Ensuite on envoie les préférences
+      const bio = document.getElementById("bio").value.trim();
+      const distanceMax = Number(document.getElementById("distance").value);
+      const ageMinVal = Number(document.getElementById("ageMin").value);
+      const ageMaxVal = Number(document.getElementById("ageMax").value);
+      const languages = document.getElementById("languages").value.split(",").map(lang => lang.trim()).filter(Boolean);
+
+      const preferencesBody = {
+        bio,
+        distanceMax,
+        preferences: { ageRange: { min: ageMinVal, max: ageMaxVal } },
+        languages
+      };
+
+      const prefResponse = await fetch("/api/user/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(preferencesBody)
+      });
+
+      const prefResult = await prefResponse.json();
+
+      if (!prefResponse.ok) {
+        throw new Error(prefResult.message || "Erreur lors de la mise à jour");
+      }
+
+      alert("Profil mis à jour avec succès !");
+      window.location.href = "index.html";
+
+    } catch (err) {
+      console.error(err);
+      alert("Erreur : " + err.message);
+    }
+  }
+</script>
+
+</body>
+</html>

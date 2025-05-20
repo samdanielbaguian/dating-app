@@ -1,0 +1,93 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom right, #f8f9fc, #ffffff);
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #ff6b81;
+  margin-bottom: 40px;
+}
+
+.card {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="password"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background-color: #ff6b81;
+  color: #fff;
+}
+
+.secondary-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.danger-btn {
+  background-color: crimson;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.95;
+}
+
+.hidden {
+  display: none;
+}
+
+.message {
+  margin-top: 10px;
+  font-size: 14px;
+  color: green;
+}

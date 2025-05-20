@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vérification 2FA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .verify-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .verify-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ff5e80;
+    }
+
+    .verify-container input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 0.3rem;
+    }
+
+    .verify-container button {
+      width: 100%;
+      padding: 0.9rem;
+      background: #ff5e80;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .verify-container button:hover {
+      background: #e14c6d;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="verify-container">
+    <h2>Vérification 2FA</h2>
+    <form id="verifyForm">
+      <input type="text" id="code" placeholder="Code à 6 chiffres" maxlength="6" pattern="[0-9]{6}" required />
+      <button type="submit">Vérifier</button>
+    </form>
+    <div class="footer-text">
+      Vous n'avez pas reçu le code ? <a href="#" onclick="resendCode()">Renvoyer</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("verifyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = document.getElementById("code").value.trim();
+
+      try {
+        const res = await fetch("/api/auth/verify-2fa", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          localStorage.setItem("token", data.token);
+          window.location.href = "/index.html";
+        } else {
+          alert(data.message || "Code invalide ou expiré.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la vérification.");
+      }
+    });
+
+    function resendCode() {
+      fetch("/api/auth/resend-2fa", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => alert(data.message || "Code renvoyé"))
+        .catch(() => alert("Erreur lors de l'envoi du code."));
+    }
+  </script>
+</body>
+</html>

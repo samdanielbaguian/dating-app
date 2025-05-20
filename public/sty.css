@@ -1,0 +1,92 @@
+/* Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to bottom right, #f6f7fb, #dce3f0);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #222;
+}
+
+/* Formulaires */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+input[type="file"],
+input[type="text"],
+input[type="number"],
+input[type="range"],
+textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+}
+
+input[type="range"] {
+  padding: 0;
+  height: 4px;
+}
+
+.age-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  padding: 12px;
+  background-color: #4a90e2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #357bd8;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+}

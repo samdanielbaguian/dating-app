@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion en cours...</title>
+  <link rel="stylesheet" href="responsive.css" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff5f6d, #ffc371);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    .loader {
+      border: 6px solid rgba(255,255,255,0.2);
+      border-top: 6px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px 0;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connexion réussie</h1>
+  <p>Redirection vers votre compte...</p>
+  <div class="loader"></div>
+
+  <script>
+    // Récupérer le token JWT depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      // Stocker dans le localStorage
+      localStorage.setItem("token", token);
+
+      // Rediriger vers la page principale
+      setTimeout(() => {
+        window.location.href = "/index.html";
+      }, 1500);
+    } else {
+      document.querySelector("p").textContent = "Token manquant. Veuillez réessayer.";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+/* responsive.css */
+
+/* Mobile First */
+body {
+    padding: 10px;
+  }
+  
+  .profile-container {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+  
+  .profile-img {
+    height: auto;
+    max-height: 300px;
+  }
+  
+  /* Responsive bouton */
+  .like-btn {
+    width: 100%;
+    font-size: 18px;
+    padding: 14px;
+  }
+  
+  /* Chat popup responsive */
+  #chatPopup {
+    width: 100%;
+    max-width: 480px;
+    bottom: 0;
+    right: 0;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  /* Messages responsifs */
+  .chat-message {
+    max-width: 80%;
+    word-wrap: break-word;
+    padding: 10px 14px;
+  }
+  
+  /* Responsive breakpoint tablette */
+  @media screen and (min-width: 600px) {
+    .profile-container {
+      max-width: 500px;
+    }
+  
+    .like-btn {
+      width: auto;
+    }
+  
+    #chatPopup {
+      bottom: 20px;
+      right: 20px;
+      border-radius: 16px;
+    }
+  }
+  

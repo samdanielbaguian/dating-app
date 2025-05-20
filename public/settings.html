@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paramètres</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <link rel="stylesheet" href="css/setting.css">
+</head>
+<body>
+  <div class="settings-container">
+    <h1>Paramètres</h1>
+
+    <!-- Profil -->
+    <section class="card">
+      <h2>Modifier le profil</h2>
+      <form id="settingsForm" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="name">Nom</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="bio">Biographie</label>
+          <textarea id="bio" name="bio" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="dateOfBirth">Date de naissance</label>
+          <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+        </div>
+        <div class="form-group">
+          <label for="genderPreference">Préférence de genre</label>
+          <select id="genderPreference" name="genderPreference" required>
+            <option value="">Sélectionner</option>
+            <option value="Homme">Homme</option>
+            <option value="Femme">Femme</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="languages">Langues</label>
+          <input type="text" id="languages" name="languages" placeholder="Ex: Français, Anglais">
+        </div>
+        <div class="form-group">
+          <label for="photos">Photos (jusqu'à 4 fichiers)</label>
+          <input type="file" id="photos" name="photos" multiple>
+        </div>
+        <div id="settingsMessage" class="message"></div>
+        <button type="submit" class="primary-btn">Mettre à jour</button>
+      </form>
+    </section>
+
+    <!-- Confidentialité -->
+    <section class="card">
+      <h2>Confidentialité</h2>
+      <label><input type="checkbox" id="anonymousMode"> Mode Anonyme</label>
+      <label><input type="checkbox" id="notifications"> Activer les notifications</label>
+    </section>
+
+    <!-- Préférences -->
+    <section class="card">
+      <h2>Préférences</h2>
+      <label for="relationshipType">Type de relation recherché</label>
+      <select id="relationshipType">
+        <option value="longTerm">Long terme</option>
+        <option value="shortTerm">Court terme</option>
+        <option value="fun">Pour le fun</option>
+      </select>
+    </section>
+
+    <!-- Abonnement -->
+    <section class="card">
+      <h2>Abonnement Premium</h2>
+      <p>Votre abonnement est actif jusqu'au <span id="subscriptionDate">__/__/____</span></p>
+      <button id="cancelSubscription" class="danger-btn">Annuler l'abonnement</button>
+    </section>
+
+    <!-- Mot de passe -->
+    <section class="card">
+      <h2>Changer le mot de passe</h2>
+      <form id="changePasswordForm">
+        <div class="form-group">
+          <label for="currentPassword">Mot de passe actuel</label>
+          <input type="password" id="currentPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="newPassword">Nouveau mot de passe</label>
+          <input type="password" id="newPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmNewPassword">Confirmer le nouveau mot de passe</label>
+          <input type="password" id="confirmNewPassword" required>
+        </div>
+        <button type="submit" class="primary-btn">Changer</button>
+        <div id="passwordMessage" class="message"></div>
+      </form>
+    </section>
+
+    <!-- 2FA -->
+    <section class="card">
+      <h2>Authentification à deux facteurs</h2>
+      <label><input type="checkbox" id="twoFactorAuth"> Activer la 2FA</label>
+      <div id="twoFactorInfo" class="hidden">
+        <p>Un code a été envoyé à votre email.</p>
+        <input type="text" id="twoFactorCode" placeholder="Code reçu par email">
+        <button id="verifyCode" class="primary-btn">Vérifier</button>
+      </div>
+    </section>
+
+    <!-- Compte -->
+    <section class="card">
+      <h2>Compte</h2>
+      <button id="logout" class="secondary-btn">Se déconnecter</button>
+      <button id="deleteAccount" class="danger-btn">Supprimer le compte</button>
+    </section>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

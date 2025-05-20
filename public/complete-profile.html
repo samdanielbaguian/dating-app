@@ -1,0 +1,52 @@
+<!-- complete-profile.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compléter le profil - Étape 2</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Complète ton profil</h2>
+    <form id="profileForm">
+      <label for="city">Ville</label>
+      <input type="text" id="city" name="city" required>
+
+      <label for="district">Quartier</label>
+      <input type="text" id="district" name="district" required>
+
+      <label for="gender">Genre</label>
+      <select id="gender" name="gender" required>
+        <option value="Male">Homme</option>
+        <option value="Female">Femme</option>
+      </select>
+
+      <label for="genderPreference">Qui veux-tu rencontrer ?</label>
+      <select id="genderPreference" name="genderPreference" required>
+        <option value="Male">Des hommes</option>
+        <option value="Female">Des femmes</option>
+        <option value="Both">Les deux</option>
+      </select>
+
+      <label for="relationshipType">Type de relation</label>
+      <select id="relationshipType" name="relationshipType" required>
+        <option value="Long terme">Long terme</option>
+        <option value="Court terme">Court terme</option>
+        <option value="Pour le fun">Pour le fun</option>
+      </select>
+
+      <button type="submit">Étape suivante</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      // Envoie les données au backend via fetch, puis redirige :
+      window.location.href = "upload-photos.html";
+    });
+  </script>
+</body>
+</html>
