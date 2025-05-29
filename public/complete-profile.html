@@ -1,4 +1,3 @@
-<!-- complete-profile.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,46 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Compléter le profil - Étape 2</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="register.css" />
+  <link rel="stylesheet" href="fade.css" />
 </head>
-<body>
-  <div class="container">
-    <h2>Complète ton profil</h2>
-    <form id="profileForm">
-      <label for="city">Ville</label>
-      <input type="text" id="city" name="city" required>
+<body class="dark-bg">
+  <div class="dark-container">
+    <div class="step-indicator dark-step">Étape 2 sur 3</div>
+    <h2 class="dark-title">Complète ton profil</h2>
+    <form id="profileForm" novalidate>
+      <label class="input-label dark-label">Ville</label>
+      <input type="text" id="city" name="city" required placeholder="Votre ville" class="dark-input">
 
-      <label for="district">Quartier</label>
-      <input type="text" id="district" name="district" required>
+      <label class="input-label dark-label">Quartier</label>
+      <input type="text" id="district" name="district" required placeholder="Votre quartier" class="dark-input">
 
-      <label for="gender">Genre</label>
-      <select id="gender" name="gender" required>
-        <option value="Male">Homme</option>
-        <option value="Female">Femme</option>
-      </select>
+      <!-- Genre -->
+      <label class="input-label dark-label">Genre</label>
+      <div class="choice-group" id="gender-group">
+        <button type="button" class="choice-btn" data-value="Male">Homme</button>
+        <button type="button" class="choice-btn" data-value="Female">Femme</button>
+      </div>
+      <input type="hidden" name="gender" id="gender" required>
 
-      <label for="genderPreference">Qui veux-tu rencontrer ?</label>
-      <select id="genderPreference" name="genderPreference" required>
-        <option value="Male">Des hommes</option>
-        <option value="Female">Des femmes</option>
-        <option value="Both">Les deux</option>
-      </select>
+      <!-- Préférence de genre -->
+      <label class="input-label dark-label">Qui veux-tu rencontrer ?</label>
+      <div class="choice-group" id="genderPreference-group">
+        <button type="button" class="choice-btn" data-value="Male">Des hommes</button>
+        <button type="button" class="choice-btn" data-value="Female">Des femmes</button>
+        <button type="button" class="choice-btn" data-value="Both">Les deux</button>
+      </div>
+      <input type="hidden" name="genderPreference" id="genderPreference" required>
 
-      <label for="relationshipType">Type de relation</label>
-      <select id="relationshipType" name="relationshipType" required>
-        <option value="Long terme">Long terme</option>
-        <option value="Court terme">Court terme</option>
-        <option value="Pour le fun">Pour le fun</option>
-      </select>
+      <!-- Type de relation -->
+      <label class="input-label dark-label">Type de relation</label>
+      <div class="choice-group" id="relationshipType-group">
+        <button type="button" class="choice-btn" data-value="Long terme">Long terme</button>
+        <button type="button" class="choice-btn" data-value="Court terme">Court terme</button>
+        <button type="button" class="choice-btn" data-value="Pour le fun">Pour le fun</button>
+      </div>
+      <input type="hidden" name="relationshipType" id="relationshipType" required>
 
-      <button type="submit">Étape suivante</button>
+      <div id="form-error" class="form-error"></div>
+
+      <button type="submit" class="btn-gradient-dark">Étape suivante</button>
     </form>
   </div>
-
   <script>
+    // Gestion choix/radio boutons custom
+    function setupChoiceGroup(groupId, inputId) {
+      const group = document.getElementById(groupId);
+      const input = document.getElementById(inputId);
+      const buttons = group.querySelectorAll('.choice-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          input.value = btn.dataset.value;
+        });
+      });
+    }
+    setupChoiceGroup('gender-group', 'gender');
+    setupChoiceGroup('genderPreference-group', 'genderPreference');
+    setupChoiceGroup('relationshipType-group', 'relationshipType');
+
     document.getElementById("profileForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      // Envoie les données au backend via fetch, puis redirige :
-      window.location.href = "upload-photos.html";
+      const errorDiv = document.getElementById("form-error");
+      errorDiv.textContent = "";
+
+      const city = document.getElementById("city").value.trim();
+      const district = document.getElementById("district").value.trim();
+      const gender = document.getElementById("gender").value;
+      const genderPreference = document.getElementById("genderPreference").value;
+      const relationshipType = document.getElementById("relationshipType").value;
+
+      if (!city || !district || !gender || !genderPreference || !relationshipType) {
+        errorDiv.textContent = "Merci de remplir tous les champs et faire un choix dans chaque catégorie.";
+        return;
+      }
+
+      // Traitement des données ou appel API ici
+      window.location.href = "upload-photo.html";
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
     });
   </script>
 </body>
