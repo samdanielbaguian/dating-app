@@ -4,244 +4,445 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Photos et Préférences</title>
-  <link rel="stylesheet" href="upload-photos.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="register.css" />
+  <link rel="stylesheet" href="nouislider.min.css" />
+  <link rel="stylesheet" href="fade.css" />
   <style>
-    .preview-container {
+    /* --- DARK MODE CONTAINER --- */
+    body.dark-bg {
+      min-height: 100vh;
+      background: #16181e;
+    }
+    .dark-container {
+      background: rgba(24, 25, 31, 0.97);
+      border-radius: 1.2rem;
+      box-shadow: 0 0 36px 5px #ff7eb322, 0 1px 12px 0 #000;
+      max-width: 410px;
+      width: 97vw;
+      margin: 4vh auto;
+      padding: 2.3rem 1.3rem 2rem 1.3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
       position: relative;
-      display: inline-block;
-      margin-right: 10px;
     }
-
-    .preview-container img {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
+    .step-indicator.dark-step {
+      background: linear-gradient(90deg, #ff758c 20%, #ff7eb3 80%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.98rem;
+      padding: 0.5em 1.1em;
+      border-radius: 2em;
+      text-align: center;
+      width: fit-content;
+      margin: 0 auto 1.2rem auto;
+      letter-spacing: 0.04em;
+      box-shadow: 0 2px 12px #ff7eb344;
     }
-
-    .preview-container button {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: red;
-      border: none;
-      color: white;
-      font-weight: bold;
+    h1 {
+      color: #fff;
+      background: none;
+      font-size: 2.1rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.4rem;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    h1 span {
+      color: #ff7eb3;
+      font-size: 1.1em;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ff758c 20%, #ff7eb3 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* --- PHOTOS UPLOAD --- */
+    .photos-upload-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.4em;
+    }
+    .main-photo-slot {
+      width: 110px; height: 110px;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      margin-bottom: 1em;
+      background: #23232f;
+      box-shadow: 0 0 16px #ff7eb355;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .main-photo-slot img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
       cursor: pointer;
+      border: 2px solid #fff3;
+      background: #181820;
+    }
+    .main-photo-slot .add-photo-icon {
+      color: #ff7eb3; 
+      font-size: 2.3em; 
+      position: absolute; 
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0.7;
+      display: none;
+    }
+    .main-photo-slot.empty .add-photo-icon { display: block; }
+    .main-photo-slot.empty img { opacity: 0.25; }
+    .main-photo-slot .remove-photo {
+      position: absolute; top: -8px; right: -8px;
+      background: #ff758c; color: #fff; border: none;
+      border-radius: 50%;
+      width: 25px; height: 25px;
+      font-size: 1.15em; cursor: pointer;
+      box-shadow: 0 1px 6px #0003;
+      z-index: 2;
+      display: none;
+    }
+    .main-photo-slot:not(.empty) .remove-photo { display: flex; align-items: center; justify-content: center; }
+    .main-photo-slot:hover, .photo-slot:hover { box-shadow: 0 0 18px #ff7eb380; }
+
+    .other-photo-slots {
+      display: flex;
+      gap: 1.1em; justify-content: center;
+      margin-bottom: 1.1em;
+    }
+    .photo-slot {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: #23232f;
+      box-shadow: 0 0 6px #ff7eb322;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .photo-slot img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff3;
+      background: #181820;
+    }
+    .photo-slot .add-photo-icon {
+      color: #ff7eb3; 
+      font-size: 2em; 
+      position: absolute; 
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0.7;
+      display: none;
+    }
+    .photo-slot.empty .add-photo-icon { display: block; }
+    .photo-slot.empty img { opacity: 0.25; }
+    .photo-slot .remove-photo {
+      position: absolute; top: -6px; right: -6px;
+      background: #ff758c; color: #fff; border: none;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      font-size: 1.12em; cursor: pointer;
+      box-shadow: 0 1px 6px #0003;
+      z-index: 2;
+      display: none;
+    }
+    .photo-slot:not(.empty) .remove-photo { display: flex; align-items: center; justify-content: center; }
+    /* --- INFOS SECTION --- */
+    .infos-section label {
+      color: #e0e0e0;
+      font-weight: 500;
+      margin-bottom: 0.17rem;
+      margin-top: 0.7rem;
+      font-size: 1.04rem;
+      display: block;
+    }
+    .infos-section textarea, 
+    .infos-section input[type="text"] {
+      width: 100%;
+      margin-bottom: 0.7rem;
+      background: #191b22;
+      border: 1.2px solid #232334;
+      border-radius: 0.62rem;
+      color: #fff;
+      font-size: 1rem;
+      padding: 0.7em;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .infos-section textarea:focus, 
+    .infos-section input[type="text"]:focus {
+      border-color: #ff7eb3;
+      outline: none;
+    }
+    /* --- NOUISLIDER --- */
+    .slider-labels {
+      display: flex; justify-content: space-between; font-size: 0.97em; color: #bcbcbc; margin-bottom: 0.2em;
+    }
+    #ageSlider { margin-bottom: 1em; margin-top: 0.3em; }
+    .noUi-target {
+      background: #23232f !important; border-radius: 2em !important; box-shadow: 0 1px 10px #0002;
+      border: 1.5px solid #ff7eb344 !important;
+    }
+    .noUi-connect {
+      background: linear-gradient(90deg, #ff758c 20%, #ff7eb3 80%) !important;
+    }
+    .noUi-handle {
+      background: #ff7eb3 !important; border: none !important;
+      box-shadow: 0 0 12px #ff7eb355;
+      width: 23px !important; height: 23px !important; top: -7px !important;
+      border-radius: 50% !important;
+      cursor: pointer;
+    }
+    .noUi-handle:after, .noUi-handle:before { display: none; }
+    /* --- FOOTER BUTTONS --- */
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1.6em;
+      margin-top: 1.1em;
+      align-items: center;
+    }
+    .submit-button {
+      width: 70%;
+      padding: 1rem 0;
+      background: linear-gradient(90deg, #ff758c 20%, #ff7eb3 80%);
+      color: #fff;
+      font-size: 1.13rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.7rem;
+      box-shadow: 0 2px 10px #ff7eb322;
+      cursor: pointer;
+      transition: background 0.22s, transform 0.15s;
+      margin: 0 auto;
+      letter-spacing: 0.02em;
+    }
+    .submit-button:hover {
+      background: linear-gradient(90deg, #e14c6d 10%, #ff758c 90%);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .back-floating {
+      position: fixed; top: 18px; left: 18px; z-index: 20;
+      background: linear-gradient(90deg, #ff758c 20%, #ff7eb3 80%);
+      color: #fff; font-size: 1.5em; border: none; border-radius: 50%;
+      width: 46px; height: 46px;
+      box-shadow: 0 2px 10px #ff7eb322;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .back-floating:hover { transform: scale(1.07); background: #23232f; color: #ff7eb3; }
+    @media (max-width: 600px) {
+      .dark-container { padding: 1.2rem 0.2rem 1.2rem 0.2rem; max-width: 99vw; }
+      h1 { font-size: 1.2rem; }
+      .main-photo-slot { width: 82px; height: 82px; }
+      .photo-slot { width: 54px; height: 54px; }
+      .footer-buttons { gap: 0.6em; }
+      .submit-button { font-size: 1rem; padding: 0.7rem 0; }
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1><span>photo et</span><br>préférences</h1>
-
-    <div class="photos-section">
-      <label>Photo de profil</label>
-      <div class="preview-container" id="profilePreviewContainer">
-        <label class="photo-slot">
-          <input type="file" id="profilePicture" accept="image/*" style="display: none;" />
-          <img id="profilePreview" src="https://via.placeholder.com/70" alt="Photo" />
-        </label>
-        <button id="removeProfile" style="display: none;">❌</button>
+<body class="dark-bg">
+  <button class="back-floating" onclick="window.location.href='complete-profile.html'">←</button>
+  <div class="dark-container">
+    <div class="step-indicator dark-step">Étape 3 sur 3</div>
+    <h1><span>Photo</span> et<br>préférences</h1>
+    <form id="uploadForm" autocomplete="off">
+      <!-- PHOTOS -->
+      <div class="photos-upload-block">
+        <!-- Main Profile Photo -->
+        <div class="main-photo-slot empty" id="main-photo-slot">
+          <label>
+            <input type="file" id="profilePicture" accept="image/*" style="display:none;">
+            <img id="profilePreview" src="https://via.placeholder.com/110" alt="Photo principale" />
+            <span class="add-photo-icon">+</span>
+            <button type="button" class="remove-photo" id="removeProfile" style="display:none;">×</button>
+          </label>
+        </div>
+        <!-- Other Photos -->
+        <div class="other-photo-slots" id="otherPhotosPreview">
+          <div class="photo-slot empty" data-index="0">
+            <label>
+              <input type="file" accept="image/*" class="hidden-file" style="display:none;">
+              <img src="https://via.placeholder.com/70" alt="Photo 1" />
+              <span class="add-photo-icon">+</span>
+              <button type="button" class="remove-photo" style="display:none;">×</button>
+            </label>
+          </div>
+          <div class="photo-slot empty" data-index="1">
+            <label>
+              <input type="file" accept="image/*" class="hidden-file" style="display:none;">
+              <img src="https://via.placeholder.com/70" alt="Photo 2" />
+              <span class="add-photo-icon">+</span>
+              <button type="button" class="remove-photo" style="display:none;">×</button>
+            </label>
+          </div>
+          <div class="photo-slot empty" data-index="2">
+            <label>
+              <input type="file" accept="image/*" class="hidden-file" style="display:none;">
+              <img src="https://via.placeholder.com/70" alt="Photo 3" />
+              <span class="add-photo-icon">+</span>
+              <button type="button" class="remove-photo" style="display:none;">×</button>
+            </label>
+          </div>
+        </div>
       </div>
+      <!-- INFOS SECTION -->
+      <div class="infos-section">
+        <label for="bio">Bio</label>
+        <textarea id="bio" placeholder="Dites quelque chose sur vous..."></textarea>
 
-      <!-- Remplace uniquement cette section dans ton HTML existant -->
-<label>Autres photos</label>
-<p>Ajouter le maximum de photos augmente vos chances de matching</p>
-<div id="otherPhotosPreview" class="photo-slots other-photo-slots">
+        <label for="distance">Distance max : <span id="distanceValue">10</span> km</label>
+        <input type="range" id="distance" min="1" max="100" value="10" />
 
-  <!-- Slots cliquables vides dès le départ -->
-  <div class="photo-slot" data-index="0">
-    <input type="file" accept="image/*" class="hidden-file" />
-    <img src="https://via.placeholder.com/70" alt="Photo" />
-    <button class="remove-photo" style="display: none;">❌</button>
+        <div class="slider-labels">
+          <span>Préférence d’âge :</span>
+          <span id="ageValue">18-40 ans</span>
+        </div>
+        <div id="ageSlider"></div>
+        <input type="hidden" id="ageMin" value="18">
+        <input type="hidden" id="ageMax" value="40">
+
+        <label for="languages">Langue parlée(s) (optionnel)</label>
+        <input type="text" id="languages" placeholder="ex: français, anglais" />
+      </div>
+      <div class="footer-buttons">
+        <button type="button" class="submit-button" onclick="submitPhotos()">C’est parti !</button>
+      </div>
+    </form>
   </div>
-  <div class="photo-slot" data-index="1">
-    <input type="file" accept="image/*" class="hidden-file" />
-    <img src="https://via.placeholder.com/70" alt="Photo" />
-    <button class="remove-photo" style="display: none;">❌</button>
-  </div>
-  <div class="photo-slot" data-index="2">
-    <input type="file" accept="image/*" class="hidden-file" />
-    <img src="https://via.placeholder.com/70" alt="Photo" />
-    <button class="remove-photo" style="display: none;">❌</button>
-  </div>
-</div>
-
-
-    <div class="infos-section">
-      <label for="bio">Bio</label>
-      <textarea id="bio" placeholder="Dites quelque chose sur vous..."></textarea>
-
-      <label for="distance">Distance max : <span id="distanceValue">10</span> km</label>
-      <input type="range" id="distance" min="1" max="100" value="10" />
-
-      <label for="ageRange">Préférence d’âge : <span id="ageValue">18-40</span> ans</label>
-      <input type="range" id="ageMin" min="18" max="99" value="18" />
-      <input type="range" id="ageMax" min="18" max="99" value="40" />
-
-      <label for="languages">Langue parlée(s) (optionnel)</label>
-      <input type="text" id="languages" placeholder="ex: français, anglais" />
-    </div>
-
-    <div class="footer-buttons">
-      <button class="back-button" onclick="window.location.href='complete-profile.html'">←</button>
-      <button class="submit-button" onclick="submitPhotos()">C’est parti !</button>
-    </div>
-  </div>
-<script>
-  const profileInput = document.getElementById('profilePicture');
-  const profilePreview = document.getElementById('profilePreview');
-  const removeProfileBtn = document.getElementById('removeProfile');
-
-  profileInput.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-      profilePreview.src = URL.createObjectURL(file);
-      removeProfileBtn.style.display = 'block';
+  <script src="nouislider.min.js"></script>
+  <script>
+    // --- MAIN PROFILE PHOTO ---
+    const mainSlot = document.getElementById('main-photo-slot');
+    const profileInput = document.getElementById('profilePicture');
+    const profilePreview = document.getElementById('profilePreview');
+    const removeProfileBtn = document.getElementById('removeProfile');
+    function updateMainSlotState(isEmpty) {
+      if (isEmpty) { mainSlot.classList.add('empty'); removeProfileBtn.style.display='none'; }
+      else { mainSlot.classList.remove('empty'); removeProfileBtn.style.display='flex'; }
     }
-  });
-
-  removeProfileBtn.addEventListener('click', function () {
-    profileInput.value = '';
-    profilePreview.src = 'https://via.placeholder.com/70';
-    this.style.display = 'none';
-  });
-
-  const photoSlots = document.querySelectorAll('.photo-slot');
-  let otherFiles = [null, null, null]; // tableau pour stocker 3 fichiers max
-
-  photoSlots.forEach((slot, index) => {
-    const fileInput = slot.querySelector('.hidden-file');
-    const previewImg = slot.querySelector('img');
-    const removeBtn = slot.querySelector('.remove-photo');
-
-    previewImg.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', function () {
+    profileInput.addEventListener('change', function () {
       const file = this.files[0];
       if (file) {
-        previewImg.src = URL.createObjectURL(file);
-        removeBtn.style.display = 'block';
-        otherFiles[index] = file;
+        profilePreview.src = URL.createObjectURL(file);
+        updateMainSlotState(false);
       }
     });
-
-    removeBtn.addEventListener('click', function () {
-      otherFiles[index] = null;
-      fileInput.value = '';
-      previewImg.src = 'https://via.placeholder.com/70';
-      removeBtn.style.display = 'none';
+    removeProfileBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      profileInput.value = '';
+      profilePreview.src = 'https://via.placeholder.com/110';
+      updateMainSlotState(true);
     });
-  });
+    profilePreview.addEventListener('click', () => profileInput.click());
+    updateMainSlotState(true);
 
- // Affichage valeurs sliders
+    // --- OTHER PHOTOS ---
+    const photoSlots = document.querySelectorAll('.photo-slot');
+    let otherFiles = [null, null, null];
+    photoSlots.forEach((slot, index) => {
+      const fileInput = slot.querySelector('.hidden-file');
+      const previewImg = slot.querySelector('img');
+      const removeBtn = slot.querySelector('.remove-photo');
+      const addIcon = slot.querySelector('.add-photo-icon');
+      function updateSlotState(isEmpty) {
+        if (isEmpty) { slot.classList.add('empty'); removeBtn.style.display='none'; }
+        else { slot.classList.remove('empty'); removeBtn.style.display='flex'; }
+      }
+      previewImg.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          previewImg.src = URL.createObjectURL(file);
+          otherFiles[index] = file;
+          updateSlotState(false);
+        }
+      });
+      removeBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        fileInput.value = '';
+        previewImg.src = 'https://via.placeholder.com/70';
+        otherFiles[index] = null;
+        updateSlotState(true);
+      });
+      updateSlotState(true);
+    });
+
+    // --- DISTANCE SLIDER ---
     document.getElementById('distance').addEventListener('input', function () {
       document.getElementById('distanceValue').innerText = this.value;
     });
 
-    const ageMin = document.getElementById('ageMin');
-    const ageMax = document.getElementById('ageMax');
+    // --- AGE RANGE SLIDER (nouislider) ---
+    const ageSlider = document.getElementById('ageSlider');
+    const ageMinInput = document.getElementById('ageMin');
+    const ageMaxInput = document.getElementById('ageMax');
     const ageValue = document.getElementById('ageValue');
-
-    function updateAgeLabel() {
-  let min = Number(ageMin.value);
-  let max = Number(ageMax.value);
-
-  if (min > max) {
-    // Swap automatiquement si l'utilisateur inverse
-    [min, max] = [max, min];
-    ageMin.value = min;
-    ageMax.value = max;
-  }
-
-  ageValue.innerText = `${min}-${max}`;
-}
-
-
-    ageMin.addEventListener('input', updateAgeLabel);
-    ageMax.addEventListener('input', updateAgeLabel);
-    updateAgeLabel();
-
-  async function submitPhotos() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Vous devez être connecté pour continuer.");
-      return;
-    }
-
-    const formData = new FormData();
-
-    const profileFile = profileInput.files[0];
-    if (profileFile) {
-      formData.append("profilePictures", profileFile);
-    }
-
-    otherFiles.forEach((file) => {
-      if (file) {
-        formData.append("profilePictures", file);
-      }
+    noUiSlider.create(ageSlider, {
+      start: [18, 40],
+      connect: true,
+      step: 1,
+      range: { 'min': 18, 'max': 99 },
+      format: { to: val => Math.round(val), from: val => Number(val) }
+    });
+    ageSlider.noUiSlider.on('update', (values) => {
+      const min = values[0], max = values[1];
+      ageValue.textContent = `${min}-${max} ans`;
+      ageMinInput.value = min;
+      ageMaxInput.value = max;
     });
 
-    try {
-      const uploadResponse = await fetch("/api/photo/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      const uploadResult = await uploadResponse.json();
-
-      if (!uploadResponse.ok) {
-        throw new Error(uploadResult.message || "Erreur lors de l'upload");
+    // --- SUBMIT FUNCTION ---
+    async function submitPhotos() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Vous devez être connecté pour continuer.");
+        return;
       }
-
-      console.log("Photos uploadées :", uploadResult);
-
-      // Ensuite on envoie les préférences
-      const bio = document.getElementById("bio").value.trim();
-      const distanceMax = Number(document.getElementById("distance").value);
-      const ageMinVal = Number(document.getElementById("ageMin").value);
-      const ageMaxVal = Number(document.getElementById("ageMax").value);
-      const languages = document.getElementById("languages").value.split(",").map(lang => lang.trim()).filter(Boolean);
-
-      const preferencesBody = {
-        bio,
-        distanceMax,
-        preferences: { ageRange: { min: ageMinVal, max: ageMaxVal } },
-        languages
-      };
-
-      const prefResponse = await fetch("/api/user/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(preferencesBody)
+      const formData = new FormData();
+      const profileFile = profileInput.files[0];
+      if (profileFile) formData.append("profilePictures", profileFile);
+      otherFiles.forEach((file) => {
+        if (file) formData.append("profilePictures", file);
       });
-
-      const prefResult = await prefResponse.json();
-
-      if (!prefResponse.ok) {
-        throw new Error(prefResult.message || "Erreur lors de la mise à jour");
+      try {
+        // Upload photos
+        const uploadResponse = await fetch("/api/photo/upload", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        const uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok) throw new Error(uploadResult.message || "Erreur lors de l'upload");
+        // Préférences
+        const bio = document.getElementById("bio").value.trim();
+        const distanceMax = Number(document.getElementById("distance").value);
+        const ageMinVal = Number(document.getElementById("ageMin").value);
+        const ageMaxVal = Number(document.getElementById("ageMax").value);
+        const languages = document.getElementById("languages").value.split(",").map(lang => lang.trim()).filter(Boolean);
+        const preferencesBody = {
+          bio, distanceMax, preferences: { ageRange: { min: ageMinVal, max: ageMaxVal } }, languages
+        };
+        const prefResponse = await fetch("/api/user/update", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(preferencesBody)
+        });
+        const prefResult = await prefResponse.json();
+        if (!prefResponse.ok) throw new Error(prefResult.message || "Erreur lors de la mise à jour");
+        alert("Profil mis à jour avec succès !");
+        window.location.href = "index.html";
+      } catch (err) {
+        console.error(err);
+        alert("Erreur : " + err.message);
       }
-
-      alert("Profil mis à jour avec succès !");
-      window.location.href = "index.html";
-
-    } catch (err) {
-      console.error(err);
-      alert("Erreur : " + err.message);
     }
-  }
-</script>
-
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+    });
+  </script>
 </body>
 </html>
