@@ -370,7 +370,16 @@
       });
       updateSlotState(true);
     });
-
+// -- suppression des phtos--
+    document.querySelectorAll('.remove-photo').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    // Récupère le chemin de la photo (par ex: depuis un attribut data-photo)
+    const photoPath = this.closest('.photo-slot').querySelector('img').dataset.photoPath;
+    if (photoPath) deletePhoto(photoPath);
+  });
+});
+    
     // --- DISTANCE SLIDER ---
     document.getElementById('distance').addEventListener('input', function () {
       document.getElementById('distanceValue').innerText = this.value;
@@ -443,6 +452,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add("fade-in");
     });
-  </script>
+  </script> 
+  
 </body>
 </html>
