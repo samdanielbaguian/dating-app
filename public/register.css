@@ -1,1 +1,52 @@
+/* --- CHOIX VISIBLES --- */
+.choice-group {
+  display: flex;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
 
+.choice-btn {
+  background: #212230;
+  color: #fff;
+  border: 2px solid #232334;
+  border-radius: 2em;
+  padding: 0.52em 1.1em;
+  font-size: 1.04rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  outline: none;
+  margin-bottom: 0.3em;
+  box-shadow: 0 2px 10px #00000019;
+}
+
+.choice-btn.active,
+.choice-btn:focus-visible {
+  background: linear-gradient(90deg, #ff758c 10%, #ff7eb3 90%);
+  color: #fff;
+  border-color: #ff7eb3;
+  box-shadow: 0 0 10px #ff7eb344;
+  font-weight: 700;
+}
+
+.choice-btn:hover:not(.active) {
+  background: #271a24;
+  border-color: #ff7eb3;
+  color: #ff7eb3;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .choice-group {
+    gap: 0.3rem;
+  }
+  .choice-btn {
+    font-size: 0.97rem;
+    padding: 0.44em 0.9em;
+  }
+}
