@@ -1,1 +1,40 @@
-
+.bottom-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #232433;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 58px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -2px 10px #0e0f1480;
+  z-index: 100;
+}
+.bottom-nav .nav-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-icon, .nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: filter 0.2s;
+}
+.nav-btn.active .nav-icon {
+  filter: none;
+}
+.nav-btn:not(.active) .nav-icon {
+  filter: grayscale(1) brightness(0.7);
+}
+.nav-btn.active .nav-icon,
+.nav-btn.active .nav-avatar {
+  box-shadow: 0 0 0 2px #ff7edc;
+}
