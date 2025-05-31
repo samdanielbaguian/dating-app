@@ -1,9 +1,11 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
+  // ========= Variables globales =========
   const socket = io();
   const token = localStorage.getItem("token");
   let currentUserId = null;
   let currentChatUserId = null;
 
+  // --- DOM Elements principaux ---
   const chatPopup = document.getElementById("chatPopup");
   const chatUserPhoto = document.getElementById("chatUserPhoto");
   const chatUserName = document.getElementById("chatUserName");
@@ -12,23 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sendChatBtn = document.getElementById("sendChatBtn");
   const closeChatBtn = document.getElementById("closeChatBtn");
 
-  // Récupération de l'utilisateur connecté
-  async function fetchCurrentUserId() {
-    try {
-      const res = await fetch("/api/auth/profile", {
-        headers: { Authorization: "Bearer " + token },
-      });
-      const user = await res.json();
-      currentUserId = user._id;
-      socket.on(`receiveMessage:${currentUserId}`, handleIncomingMessage);
-    } catch (err) {
-      console.error("Erreur récupération ID utilisateur :", err);
-    }
-  }
-
-
-// Barre de navigation : icône colorée si active, grise sinon
-document.addEventListener('DOMContentLoaded', function() {
+  // Navigation barre
   const navBtns = document.querySelectorAll('.bottom-nav .nav-btn');
   navBtns.forEach(btn => {
     btn.addEventListener('click', function() {
@@ -48,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Met l'Accueil actif par défaut
-  document.getElementById('navHome').classList.add('active');
+  const navHome = document.getElementById('navHome');
+  if (navHome) navHome.classList.add('active');
   document.querySelectorAll('.bottom-nav .nav-icon').forEach(icon => {
     const btnParent = icon.closest('.nav-btn');
     if (btnParent.classList.contains('active')) {
@@ -58,31 +45,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Gestion de l'ouverture/fermeture de la modale profil
+  // ========== MODALE PROFIL & GALERIE VERTICALE ==========
   const cardsContainer = document.getElementById('cardsContainer');
   const profileModal = document.getElementById('profileModal');
   const closeProfileModal = document.getElementById('closeProfileModal');
   let currentProfile = null;
 
-  // Simulation d’un écouteur pour les photos principales
-  cardsContainer.addEventListener('click', function(e) {
-    const photo = e.target.closest('.main-photo');
-    if (photo) {
-      const userId = photo.dataset.userId;
-      // Charge les infos utilisateur et les photos supplémentaires
-      showProfileModal(userId);
-    }
-  });
+  if (cardsContainer) {
+    cardsContainer.addEventListener('click', function(e) {
+      const photo = e.target.closest('.main-photo');
+      if (photo) {
+        const userId = photo.dataset.userId;
+        showProfileModal(userId);
+      }
+    });
+  }
 
-  closeProfileModal.addEventListener('click', function() {
-    profileModal.style.display = 'none';
-    document.body.style.overflow = '';
-  });
+  if (closeProfileModal) {
+    closeProfileModal.addEventListener('click', function() {
+      profileModal.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
 
-  // Fonction pour afficher la modale avec photos verticales et infos
   function showProfileModal(userId) {
-    // Remplacer cette partie par un appel AJAX pour charger les vraies données
-    // Exemple de données simulées :
+    // Remplacer par appel AJAX pour charger les vraies données
     const userData = {
       name: "Alice",
       age: 26,
@@ -98,87 +85,105 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     // Remplir la galerie verticale
     const gallery = document.getElementById('modalGallery');
-    gallery.innerHTML = userData.photos.map(src => `<img src="${src}" alt="Photo">`).join("");
+    if (gallery) {
+      gallery.innerHTML = userData.photos.map(src => `<img src="${src}" alt="Photo">`).join("");
+    }
     // Remplir les infos
     const infos = document.getElementById('modalInfos');
-    infos.innerHTML = `
-      <div><b>${userData.name}, ${userData.age}</b></div>
-      <div>📍 ${userData.city} — ${userData.distance}</div>
-      <div>✨ ${userData.compatibility} de compatibilité</div>
-      <div class="interests-list">
-        ${userData.interests.map(int => `<span class="interest">${int}</span>`).join("")}
-      </div>
-    `;
-    profileModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (infos) {
+      infos.innerHTML = `
+        <div><b>${userData.name}, ${userData.age}</b></div>
+        <div>📍 ${userData.city} — ${userData.distance}</div>
+        <div>✨ ${userData.compatibility} de compatibilité</div>
+        <div class="interests-list">
+          ${userData.interests.map(int => `<span class="interest">${int}</span>`).join("")}
+        </div>
+      `;
+    }
+    if (profileModal) {
+      profileModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
   }
-});
-  
+
+  // ========== CHAT & SOCKETS ==========
+  async function fetchCurrentUserId() {
+    try {
+      const res = await fetch("/api/auth/profile", {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const user = await res.json();
+      currentUserId = user._id;
+      socket.on(`receiveMessage:${currentUserId}`, handleIncomingMessage);
+    } catch (err) {
+      console.error("Erreur récupération ID utilisateur :", err);
+    }
+  }
   fetchCurrentUserId();
 
-  // Fonction d'ouverture du chat
+  // Ouverture de chat
   window.openChat = function (user) {
     currentChatUserId = user._id;
-    chatUserName.textContent = user.name;
-    chatUserPhoto.src = user.profilePicture || "/default.jpg";
-    chatPopup.classList.remove("hidden");
-    chatMessages.innerHTML = "";
-    chatInput.value = "";
+    if (chatUserName) chatUserName.textContent = user.name;
+    if (chatUserPhoto) chatUserPhoto.src = user.profilePicture || "/default.jpg";
+    if (chatPopup) chatPopup.classList.remove("hidden");
+    if (chatMessages) chatMessages.innerHTML = "";
+    if (chatInput) chatInput.value = "";
     loadOldMessages(user._id);
   };
 
-  closeChatBtn.addEventListener("click", () => {
-    chatPopup.classList.add("hidden");
-    chatMessages.innerHTML = "";
-    chatInput.value = "";
-    currentChatUserId = null;
-  });
-
-  sendChatBtn.addEventListener("click", () => {
-    const message = chatInput.value.trim();
-    if (!message || !currentChatUserId || !currentUserId) return;
-
-    socket.emit("sendMessage", {
-      senderId: currentUserId,
-      receiverId: currentChatUserId,
-      message,
+  if (closeChatBtn) {
+    closeChatBtn.addEventListener("click", () => {
+      if (chatPopup) chatPopup.classList.add("hidden");
+      if (chatMessages) chatMessages.innerHTML = "";
+      if (chatInput) chatInput.value = "";
+      currentChatUserId = null;
     });
+  }
 
-    appendMessage(message, true);
-    chatInput.value = "";
-  });
+  if (sendChatBtn) {
+    sendChatBtn.addEventListener("click", () => {
+      const message = chatInput.value.trim();
+      if (!message || !currentChatUserId || !currentUserId) return;
+
+      socket.emit("sendMessage", {
+        senderId: currentUserId,
+        receiverId: currentChatUserId,
+        message,
+      });
+
+      appendMessage(message, true);
+      chatInput.value = "";
+    });
+  }
 
   function handleIncomingMessage(data) {
-  if (data.senderId === currentChatUserId) {
-    appendMessage(data.message, false);
-  } else {
-    // Afficher le badge de notification si le chat n'est pas ouvert avec cet utilisateur
-    const notification = document.getElementById("messageNotification");
-    if (notification) {
-      notification.classList.remove("hidden");
-
-      // Clique sur le badge => recharge la conversation
-      notification.onclick = async () => {
-        try {
-          // Appelle une route backend pour récupérer les infos de l'expéditeur
-          const res = await fetch(`/api/users/${data.senderId}`, {
-            headers: { Authorization: "Bearer " + token }
-          });
-          const user = await res.json();
-          openChat(user); // ouvre le chat avec cet utilisateur
-          notification.classList.add("hidden");
-        } catch (err) {
-          console.error("Erreur récupération profil expéditeur :", err);
-        }
-      };
+    if (data.senderId === currentChatUserId) {
+      appendMessage(data.message, false);
+    } else {
+      // Afficher badge notification
+      const notification = document.getElementById("messageNotification");
+      if (notification) {
+        notification.classList.remove("hidden");
+        notification.onclick = async () => {
+          try {
+            const res = await fetch(`/api/users/${data.senderId}`, {
+              headers: { Authorization: "Bearer " + token }
+            });
+            const user = await res.json();
+            openChat(user);
+            notification.classList.add("hidden");
+          } catch (err) {
+            console.error("Erreur récupération profil expéditeur :", err);
+          }
+        };
+      }
+      console.log("📩 Nouveau message d'un autre utilisateur.");
     }
-
-    console.log("📩 Nouveau message d'un autre utilisateur.");
   }
-}
-
 
   function appendMessage(text, isSentByUser) {
+    if (!chatMessages) return;
     const div = document.createElement("div");
     div.className = "chat-message " + (isSentByUser ? "sent" : "received");
     div.textContent = text;
@@ -192,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
         headers: { Authorization: "Bearer " + token },
       });
       if (!res.ok) throw new Error("Erreur de récupération des messages");
-
       const messages = await res.json();
       messages.forEach(msg => {
         appendMessage(msg.content, msg.sender === currentUserId);
@@ -204,49 +208,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function showNoMatchPopup() {
     const popup = document.getElementById("noMatchPopup");
-    popup.classList.remove("hidden");
-
-    const closeBtn = document.getElementById("closePopupBtn");
-    if (closeBtn) {
-      closeBtn.onclick = () => popup.classList.add("hidden");
+    if (popup) {
+      popup.classList.remove("hidden");
+      const closeBtn = document.getElementById("closePopupBtn");
+      if (closeBtn) {
+        closeBtn.onclick = () => popup.classList.add("hidden");
+      }
     }
   }
 
-  document.getElementById("sendMessageBtn")?.addEventListener("click", async () => {
-    const message = document.getElementById("messageInput").value.trim();
-    if (!message || !currentChatUserId) return;
+  const sendMessageBtn = document.getElementById("sendMessageBtn");
+  if (sendMessageBtn) {
+    sendMessageBtn.addEventListener("click", async () => {
+      const messageInput = document.getElementById("messageInput");
+      const message = messageInput.value.trim();
+      if (!message || !currentChatUserId) return;
 
-    try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ receiverId: currentChatUserId, message }),
-      });
+      try {
+        const res = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ receiverId: currentChatUserId, message }),
+        });
 
-      if (res.status === 403) {
-        showNoMatchPopup();
-        return;
+        if (res.status === 403) {
+          showNoMatchPopup();
+          return;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          appendMessage(data.data.content, true);
+          messageInput.value = "";
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'envoi du message:", error);
       }
-
-      if (res.ok) {
-        const data = await res.json();
-        appendMessage(data.data.content, true);
-        document.getElementById("messageInput").value = "";
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
-    }
-  });
+    });
+  }
 
   window.closePopup = () => {
     const popup = document.getElementById("noMatchPopup");
-    popup.classList.add("hidden");
+    if (popup) popup.classList.add("hidden");
   };
 
-  // ✅ LOGIQUE DE LIKE + MATCH + CHAT AUTO
+  // ========== LIKE + MATCH ==========
   async function handleLike(userId, userData) {
     try {
       const res = await fetch('/api/likes', {
@@ -260,10 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (res.status === 201) {
         const result = await res.json();
-
         if (result.match === true) {
           console.log("🎉 Match mutuel avec", userData.name);
-          openChat(userData); // 👈 Ouvre le chat automatiquement
+          openChat(userData);
         } else {
           console.log("Like enregistré sans match.");
         }
@@ -275,54 +283,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // 👉 Tu peux appeler handleLike() depuis ici, ou depuis ton bouton ou ta logique de swipe :
-  // Exemple (à adapter selon ton interface) :
-  // document.getElementById("likeBtn").addEventListener("click", () => {
-  //   const userData = {
-  //     _id: profilIdAffiché,
-  //     name: profilName,
-  //     profilePicture: profilPhotoURL
-  //   };
-  //   handleLike(userData._id, userData);
-  // });
+  // ========== SWING.JS ==========
+  // Assure-toi que les cartes '.swipe-card' sont dans le DOM AVANT ce code !
+  if (typeof Swing !== "undefined") {
+    const stack = Swing.Stack();
+    document.querySelectorAll('.swipe-card').forEach(cardElement => {
+      stack.createCard(cardElement);
+    });
 
+    stack.on('throwout', (event) => {
+      const direction = event.throwDirection.toString();
+      const card = event.target;
+      const profilId = card.dataset.userid;
+      const profilName = card.dataset.username;
+      const profilPhoto = card.dataset.userphoto;
 
-  // ... (tout ton code existant au-dessus reste inchangé)
+      const userData = {
+        _id: profilId,
+        name: profilName,
+        profilePicture: profilPhoto,
+      };
 
-// LOGIQUE DE SWIPE (Swing.js)
-const stack = Swing.Stack();
+      if (direction.includes('RIGHT')) {
+        handleLike(profilId, userData);
+      }
+      // Supprimer la carte du DOM après le swipe
+      card.remove();
+    });
 
-document.querySelectorAll('.swipe-card').forEach(cardElement => {
-  stack.createCard(cardElement);
-});
-
-stack.on('throwout', (event) => {
-  const direction = event.throwDirection.toString();
-  const card = event.target;
-
-  const profilId = card.dataset.userid;
-  const profilName = card.dataset.username;
-  const profilPhoto = card.dataset.userphoto;
-
-  const userData = {
-    _id: profilId,
-    name: profilName,
-    profilePicture: profilPhoto,
-  };
-
-  if (direction.includes('RIGHT')) {
-    handleLike(profilId, userData);
+    // Optionnel : fonction pour recharger les profils
+    function reloadProfiles() {
+      // À implémenter si besoin
+    }
   }
-
-  // Supprimer la carte du DOM après le swipe
-  card.remove();
-});
-
-// Optionnel : pour réinitialiser la pile de cartes après un certain nombre de swipes
-function reloadProfiles() {
-  // Recharger les profils depuis le backend si tu veux
-  // ou afficher un message "plus de profils"
-}
-
-
 });
