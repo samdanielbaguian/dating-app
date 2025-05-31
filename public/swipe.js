@@ -26,6 +26,94 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
+// Barre de navigation : icône colorée si active, grise sinon
+document.addEventListener('DOMContentLoaded', function() {
+  const navBtns = document.querySelectorAll('.bottom-nav .nav-btn');
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      navBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      // Change l'icône si besoin
+      document.querySelectorAll('.bottom-nav .nav-icon').forEach(icon => {
+        const btnParent = icon.closest('.nav-btn');
+        const isActive = btnParent.classList.contains('active');
+        if (isActive) {
+          icon.src = "icons/" + icon.dataset.active;
+        } else {
+          icon.src = "icons/" + icon.dataset.inactive;
+        }
+      });
+    });
+  });
+
+  // Met l'Accueil actif par défaut
+  document.getElementById('navHome').classList.add('active');
+  document.querySelectorAll('.bottom-nav .nav-icon').forEach(icon => {
+    const btnParent = icon.closest('.nav-btn');
+    if (btnParent.classList.contains('active')) {
+      icon.src = "icons/" + icon.dataset.active;
+    } else {
+      icon.src = "icons/" + icon.dataset.inactive;
+    }
+  });
+
+  // Gestion de l'ouverture/fermeture de la modale profil
+  const cardsContainer = document.getElementById('cardsContainer');
+  const profileModal = document.getElementById('profileModal');
+  const closeProfileModal = document.getElementById('closeProfileModal');
+  let currentProfile = null;
+
+  // Simulation d’un écouteur pour les photos principales
+  cardsContainer.addEventListener('click', function(e) {
+    const photo = e.target.closest('.main-photo');
+    if (photo) {
+      const userId = photo.dataset.userId;
+      // Charge les infos utilisateur et les photos supplémentaires
+      showProfileModal(userId);
+    }
+  });
+
+  closeProfileModal.addEventListener('click', function() {
+    profileModal.style.display = 'none';
+    document.body.style.overflow = '';
+  });
+
+  // Fonction pour afficher la modale avec photos verticales et infos
+  function showProfileModal(userId) {
+    // Remplacer cette partie par un appel AJAX pour charger les vraies données
+    // Exemple de données simulées :
+    const userData = {
+      name: "Alice",
+      age: 26,
+      city: "Paris",
+      distance: "3.1 km",
+      compatibility: "72%",
+      interests: ["Voyages", "Musique", "Animaux"],
+      photos: [
+        "uploads/profile1.jpg",
+        "uploads/photo2.jpg",
+        "uploads/photo3.jpg"
+      ]
+    };
+    // Remplir la galerie verticale
+    const gallery = document.getElementById('modalGallery');
+    gallery.innerHTML = userData.photos.map(src => `<img src="${src}" alt="Photo">`).join("");
+    // Remplir les infos
+    const infos = document.getElementById('modalInfos');
+    infos.innerHTML = `
+      <div><b>${userData.name}, ${userData.age}</b></div>
+      <div>📍 ${userData.city} — ${userData.distance}</div>
+      <div>✨ ${userData.compatibility} de compatibilité</div>
+      <div class="interests-list">
+        ${userData.interests.map(int => `<span class="interest">${int}</span>`).join("")}
+      </div>
+    `;
+    profileModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+});
+  
   fetchCurrentUserId();
 
   // Fonction d'ouverture du chat
