@@ -2,36 +2,31 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require("dotenv").config();
 
-const authMiddleware = async (req, res, next) => {
-    try {
-        const authHeader = req.header("Authorization");
+const { verifyAccessToken } = require("../utils/jwt");
+const User = require("../models/User");
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            console.warn("⚠️ Requête sans token valide.");
-            return res.status(401).json({ message: "Accès refusé. Token manquant ou mal formaté." });
-        }
-
-        const token = authHeader.replace("Bearer ", "").trim();
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const user = await User.findById(decoded.id).select("-password");
-        
-        if (!user) {
-            console.warn(`❌ Aucun utilisateur trouvé pour l'ID ${decoded.id}`);
-            return res.status(404).json({ message: "Utilisateur non trouvé." });
-        }
-
-        req.user = user;  // Stocker l'utilisateur dans `req.user`
-        console.log("✅ Utilisateur authentifié :", user._id);
-
-        next();
-    } catch (error) {
-        if (error.name === "TokenExpiredError") {
-            return res.status(401).json({ message: "Session expirée. Veuillez vous reconnecter." });
-        } else {
-            return res.status(401).json({ message: "Token invalide ou expiré." });
-        }
+module.exports = async function (req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token manquant ou invalide." });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = verifyAccessToken(token);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "Utilisateur introuvable." });
     }
+    req.user = {
+      id: user._id.toString(),
+      email: user.email,
+      isPremium: user.isPremium,
+      name: user.name,
+    };
+    next();
+  } catch {
+    return res.status(401).json({ message: "Token invalide ou expiré." });
+  }
 };
 
 module.exports = authMiddleware;
