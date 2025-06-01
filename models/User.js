@@ -29,7 +29,7 @@ const UserSchema = new mongoose.Schema({
     enum: ["Long terme", "Court terme", "Pour le fun"],
     default: "Long terme",
   },
-  dateOfBirth: { type: Date }, // <-- Passe en Date (conseillé, voir remarque)
+  dateOfBirth: { type: Date },
   genderPreference: {
     type: String,
     enum: ["Male", "Female", "Both"],
@@ -73,6 +73,7 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 
 /**
  * Méthode pour renvoyer un user “propre” au client (sans infos sensibles)
+ * Ajoute ici tout champ sensible qui ne doit jamais sortir côté client.
  */
 UserSchema.methods.toSafeObject = function () {
   const obj = this.toObject();
@@ -80,7 +81,7 @@ UserSchema.methods.toSafeObject = function () {
   delete obj.refreshTokens;
   delete obj.twoFactorSecret;
   delete obj.twoFactorTempSecret;
-  // … ajoute d’autres champs si besoin
+  // Ajoute d’autres champs sensibles ici si besoin
   return obj;
 };
 
