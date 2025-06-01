@@ -31,16 +31,25 @@ async function apiFetch(url, options = {}) {
   return res;
 }
 
+// Paramètres de pagination et filtrage
+let currentPage = 1;
+const pageSize = 20;
+let onlyNonMatched = false;
+
 // Affichage des likes reçus
-async function loadLikes() {
+async function loadLikes(page = 1) {
   const likesGrid = document.getElementById('likesGrid');
   const likesCount = document.getElementById('likesCount');
   const noLikes = document.getElementById('noLikes');
+  const pagination = document.getElementById('likesPagination');
   likesGrid.innerHTML = '';
   likesCount.textContent = '';
   noLikes.style.display = 'none';
+  pagination.innerHTML = '';
 
-  let res = await apiFetch('/api/likes/received');
+  let url = `/api/likes/received?page=${page}&limit=${pageSize}`;
+  if (onlyNonMatched) url += "&onlyNonMatched=true";
+  let res = await apiFetch(url);
   if (!res || !res.ok) {
     noLikes.style.display = '';
     return;
@@ -62,17 +71,12 @@ async function loadLikes() {
       badge.className = 'badge match';
       badge.textContent = 'Match !';
       card.appendChild(badge);
-    } else if (user.isNew) {
-      const badge = document.createElement('span');
-      badge.className = 'badge new';
-      badge.textContent = 'Nouveau';
-      card.appendChild(badge);
     }
 
     // Avatar
     const avatar = document.createElement('img');
     avatar.className = 'like-avatar';
-    avatar.src = user.profilePicture || 'icons/default-avatar.png';
+    avatar.src = (user.profilePictures && user.profilePictures[0]) || 'icons/default-avatar.png';
     avatar.alt = user.name;
     card.appendChild(avatar);
 
@@ -102,15 +106,13 @@ async function loadLikes() {
       likeBtn.onclick = async () => {
         likeBtn.disabled = true;
         likeBtn.textContent = '...';
-        const resp = await apiFetch(`/api/likes/like-back`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id })
+        const resp = await apiFetch(`/api/likes/${user.id}`, {
+          method: "POST"
         });
         if (resp && resp.ok) {
           likeBtn.textContent = 'Match !';
           likeBtn.disabled = true;
-          // Optionnel : afficher le badge match
+          // Afficher le badge match
           const badge = document.createElement('span');
           badge.className = 'badge match';
           badge.textContent = 'Match !';
@@ -121,11 +123,50 @@ async function loadLikes() {
         }
       };
       actions.appendChild(likeBtn);
-    }
-    card.appendChild(actions);
 
+      // Retirer le like (unlike)
+      const unlikeBtn = document.createElement('button');
+      unlikeBtn.className = 'unlike';
+      unlikeBtn.textContent = 'Retirer le like';
+      unlikeBtn.onclick = async () => {
+        unlikeBtn.disabled = true;
+        unlikeBtn.textContent = '...';
+        const resp = await apiFetch(`/api/likes/${user.id}`, { method: "DELETE" });
+        if (resp && resp.ok) {
+          card.remove();
+        } else {
+          unlikeBtn.textContent = 'Erreur';
+          unlikeBtn.disabled = false;
+        }
+      };
+      actions.appendChild(unlikeBtn);
+    }
+
+    card.appendChild(actions);
     likesGrid.appendChild(card);
   });
+
+  // Pagination simple (boutons précédent/suivant)
+  if (users.length === pageSize || page > 1) {
+    if (page > 1) {
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = 'Précédent';
+      prevBtn.onclick = () => {
+        currentPage -= 1;
+        loadLikes(currentPage);
+      };
+      pagination.appendChild(prevBtn);
+    }
+    if (users.length === pageSize) {
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = 'Suivant';
+      nextBtn.onclick = () => {
+        currentPage += 1;
+        loadLikes(currentPage);
+      };
+      pagination.appendChild(nextBtn);
+    }
+  }
 }
 
 // Affichage de la modale profil (complète selon ton appli)
@@ -148,7 +189,7 @@ function showProfileModal(user) {
     });
   } else {
     const img = document.createElement('img');
-    img.src = user.profilePicture || 'icons/default-avatar.png';
+    img.src = (user.profilePictures && user.profilePictures[0]) || 'icons/default-avatar.png';
     img.style.width = '100%';
     img.style.borderRadius = '10px';
     gallery.appendChild(img);
@@ -166,4 +207,14 @@ document.getElementById("closeProfileModal").onclick = () => {
   document.getElementById("profileModal").style.display = "none";
 };
 
-window.onload = loadLikes;
+// Gestion du filtrage "likes non-matchés"
+document.getElementById('filterNonMatched').onchange = function () {
+  onlyNonMatched = this.checked;
+  currentPage = 1;
+  loadLikes();
+};
+
+// Chargement initial
+window.onload = () => {
+  loadLikes();
+};
