@@ -20,7 +20,9 @@ module.exports = async function (req, res, next) {
       name: user.name,
     };
     next();
-  } catch {
-    return res.status(401).json({ message: "Token invalide ou expiré." });
-  }
+  } 
+  catch (error) {
+  console.error(error);
+  return res.status(401).json({ message: "Token invalide ou expiré." });
+}
 };
