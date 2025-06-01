@@ -1,7 +1,3 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-require("dotenv").config();
-
 const { verifyAccessToken } = require("../utils/jwt");
 const User = require("../models/User");
 
@@ -28,5 +24,3 @@ module.exports = async function (req, res, next) {
     return res.status(401).json({ message: "Token invalide ou expiré." });
   }
 };
-
-module.exports = authMiddleware;
