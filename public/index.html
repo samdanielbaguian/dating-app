@@ -1,205 +1,187 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rencontre - Accueil</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="responsive.css" />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page principale - Rencontres</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="index.css">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffe7e7, #fff4f0);
-      min-height: 100vh;
-      padding: 20px;
-      position: relative;
-    }
-
-    #logoutBtn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #555;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-    }
-
-    #stackContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .card {
-      position: relative;
-      background-color: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-    .card img {
-      width: 100%;
-      height: 300px;
-      object-fit: cover;
-    }
-
-    .profile-text {
-      padding: 15px;
-      text-align: center;
-    }
-
-    .profile-text h3 {
-      margin: 0;
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-
-    .profile-text p {
-      font-size: 1rem;
-      color: #555;
-    }
-
-    /* Chat pop-up */
-    .chat-popup {
-      position: fixed;
-      bottom: 0;
-      right: 20px;
-      width: 300px;
-      background: white;
-      border-radius: 10px 10px 0 0;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .chat-header {
-      background: #ff5f6d;
-      color: white;
-      padding: 10px;
-      border-radius: 10px 10px 0 0;
+    .header-user {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
+      margin-left: auto;
     }
-
-    .chat-header img {
-      width: 30px;
-      height: 30px;
+    .header-avatar {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      margin-right: 10px;
+      object-fit: cover;
+      background: #eee;
+      border: 2px solid #fff;
     }
-
-    .chat-messages {
-      height: 200px;
-      overflow-y: auto;
-      padding: 10px;
-      background: #fafafa;
-    }
-
-    .chat-input {
-      display: flex;
-      border-top: 1px solid #ccc;
-    }
-
-    .chat-input input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      outline: none;
-    }
-
-    .chat-input button {
-      background: #ff5f6d;
+    #logoutBtn {
+      background: #e43f5a;
       color: white;
       border: none;
-      padding: 10px 15px;
+      border-radius: 18px;
+      padding: 7px 18px;
+      font-weight: bold;
       cursor: pointer;
+      margin-left: 8px;
+      font-family: inherit;
     }
-
-    #notification-container {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
+    .bottom-nav .nav-btn.active .nav-icon {
+      /* Optionnel : effet visuel sur bouton actif */
+      filter: drop-shadow(0 0 4px #ff5f6d88);
     }
   </style>
 </head>
 <body>
+  <!-- Header : logo à gauche, nom appli, user à droite -->
+  <header class="header">
+    <img src="icons/logo.svg" alt="Logo" class="logo">
+    <span class="app-name">NomDeTonApp</span>
+    <div class="header-user" id="headerUser" style="display:none;">
+      <img id="headerAvatar" class="header-avatar" src="icons/default-avatar.png" alt="avatar">
+      <span id="headerName"></span>
+      <button id="logoutBtn">Déconnexion</button>
+    </div>
+  </header>
 
-  <button id="logoutBtn">Se déconnecter</button>
-
-  <div id="stackContainer">
-    <!-- Les profils swipe seront chargés ici -->
+  <!-- Section centrale des cartes -->
+  <div class="cards-container" id="cardsContainer">
+    <!-- Les cartes profils injectées dynamiquement -->
   </div>
 
-  <!-- Notifications -->
-  <div id="notification-container"></div>
-
-  <!-- Chat pop-up -->
-  <div id="chatPopup" class="chat-popup hidden">
-    <div class="chat-header">
-      <img src="" alt="Photo" class="chat-photo" id="chatUserPhoto">
-      <span id="chatUserName">Nom de l'utilisateur</span>
-      <button id="closeChatBtn">✖</button>
-    </div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="Écris ton message...">
-      <button id="sendChatBtn">Envoyer</button>
+  <!-- Modale verticale pour galerie & infos complètes -->
+  <div class="profile-modal" id="profileModal" style="display:none;">
+    <div class="modal-content">
+      <button class="close-modal" id="closeProfileModal" title="Fermer">×</button>
+      <div class="photos-gallery-vertical" id="modalGallery"></div>
+      <div class="modal-infos" id="modalInfos"></div>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Barre de navigation inférieure -->
+  <nav class="bottom-nav">
+    <button class="nav-btn" id="navHome" title="Accueil">
+      <img src="icons/acceuil gris.svg" alt="Accueil" class="nav-icon"
+           data-active="icons/acceuil.svg" data-inactive="icons/acceuil gris.svg">
+    </button>
+    <button class="nav-btn" id="navMessages" title="Messages">
+      <img src="icons/messages gris.svg" alt="Messages" class="nav-icon"
+           data-active="icons/messages.svg" data-inactive="icons/messages gris.svg">
+    </button>
+    <button class="nav-btn" id="navLikes" title="Likes reçus">
+      <img src="icons/likepage gris.svg" alt="Likes reçus" class="nav-icon"
+           data-active="icons/likepage.svg" data-inactive="icons/likepage gris.svg">
+    </button>
+    <button class="nav-btn" id="navProfile" title="Profil">
+      <img src="uploads/user_avatar.jpg" alt="Mon profil" class="nav-avatar">
+    </button>
+  </nav>
+
   <script>
-    // ✅ Vérification du token
-    document.addEventListener("DOMContentLoaded", () => {
+    // Gestion du changement d'icône actif/inactif pour la bottom-nav
+    document.querySelectorAll('.bottom-nav .nav-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => {
+          b.classList.remove('active');
+          const img = b.querySelector('img.nav-icon');
+          if(img) img.src = img.getAttribute('data-inactive');
+        });
+        this.classList.add('active');
+        const img = this.querySelector('img.nav-icon');
+        if(img) img.src = img.getAttribute('data-active');
+      });
+    });
+    // Activer le bouton Accueil au chargement
+    document.getElementById('navHome').click();
+
+    // ========= Helpers Auth =========
+    async function apiFetch(url, options = {}) {
+      let token = localStorage.getItem("token");
+      options.headers = options.headers || {};
+      options.headers.Authorization = `Bearer ${token}`;
+      let res = await fetch(url, options);
+      if (res.status === 401) {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) {
+          localStorage.clear();
+          window.location.href = "/login.html";
+          return;
+        }
+        const refreshRes = await fetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        });
+        if (refreshRes.ok) {
+          const { accessToken, refreshToken: newRefresh } = await refreshRes.json();
+          localStorage.setItem("token", accessToken);
+          localStorage.setItem("refreshToken", newRefresh);
+          options.headers.Authorization = `Bearer ${accessToken}`;
+          return fetch(url, options);
+        } else {
+          localStorage.clear();
+          window.location.href = "/login.html";
+          return;
+        }
+      }
+      return res;
+    }
+
+    // ========== Authentification & Affichage User ==========
+    document.addEventListener("DOMContentLoaded", async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!token || !refreshToken) {
         window.location.href = "/login.html";
         return;
       }
-
-      fetch("/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error("Non autorisé");
-        return res.json();
-      })
-      .then(user => {
-        console.log("Utilisateur connecté :", user);
-        // Tu peux afficher ici l’avatar ou le nom dans une barre supérieure
-      })
-      .catch(() => {
-        localStorage.removeItem("token");
+      // Récupère infos utilisateur connecté
+      let res = await apiFetch("/api/auth/me");
+      if (!res || !res.ok) {
+        localStorage.clear();
         window.location.href = "/login.html";
-      });
+        return;
+      }
+      let user = await res.json();
+      // Affiche dans le header
+      const headerUser = document.getElementById("headerUser");
+      const headerAvatar = document.getElementById("headerAvatar");
+      const headerName = document.getElementById("headerName");
+      if (user && user.name) {
+        headerName.textContent = user.name;
+        headerUser.style.display = "flex";
+      }
+      if (user && user.profilePictures && user.profilePictures.length > 0) {
+        headerAvatar.src = user.profilePictures[0];
+      } else {
+        headerAvatar.src = "icons/default-avatar.png";
+      }
     });
 
-    // ✅ Logout
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("token");
+    // ========== Logout ==========
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          },
+          body: JSON.stringify({ refreshToken })
+        });
+      }
+      localStorage.clear();
       window.location.href = "/login.html";
     });
   </script>
-
   <script src="swipe.js"></script>
-  <script src="script.js"></script>
-
 </body>
 </html>
