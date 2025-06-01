@@ -45,15 +45,18 @@ const UserSchema = new mongoose.Schema({
   twoFactorEmailLastSentAt: { type: Date },
   refreshTokens: { type: [String], default: [] },
   googleId: { type: String }, // utilisateur créé via Google
-}, { timestamps: true }); // Ajoute createdAt et updatedAt
 
-// ... partie haute inchangée
-blockNonMatchMessages: { type: Boolean, default: false }, // Nouveau champ
-nonMatchContactsLog: [{
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  date: { type: Date, default: Date.now }
-}],
-// ... reste du schéma
+  // --------- AJOUTS POUR MESSAGERIE AVANCÉE ---------
+  // Préférence : refuser les messages d'utilisateurs qui ne sont pas un match
+  blockNonMatchMessages: { type: Boolean, default: false },
+
+  // Log des nouveaux contacts non-match approchés (pour quota premium)
+  // Chaque entrée : { userId: ObjectId, date: Date }
+  nonMatchContactsLog: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    date: { type: Date, default: Date.now }
+  }],
+}, { timestamps: true }); // Ajoute createdAt et updatedAt
 
 // Index géospatial
 UserSchema.index({ location: "2dsphere" });
@@ -81,7 +84,6 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 
 /**
  * Méthode pour renvoyer un user “propre” au client (sans infos sensibles)
- * Ajoute ici tout champ sensible qui ne doit jamais sortir côté client.
  */
 UserSchema.methods.toSafeObject = function () {
   const obj = this.toObject();
@@ -89,6 +91,7 @@ UserSchema.methods.toSafeObject = function () {
   delete obj.refreshTokens;
   delete obj.twoFactorSecret;
   delete obj.twoFactorTempSecret;
+  delete obj.nonMatchContactsLog; // Ne jamais exposer ce log côté client
   // Ajoute d’autres champs sensibles ici si besoin
   return obj;
 };
