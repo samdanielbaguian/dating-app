@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: function () { return !this.googleId; },
   },
+  refreshTokens: { type: [String], default: [] },
+  
   profilePictures: { type: [String], default: [] },
   location: {
     type: { type: String, default: "Point" },
