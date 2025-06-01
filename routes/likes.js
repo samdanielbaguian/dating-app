@@ -79,4 +79,33 @@ router.post("/:userId", authMiddleware, async (req, res) => {
   }
 });
 
+// Récupère la liste des utilisateurs qui ont liké l'utilisateur connecté
+router.get("/received", authMiddleware, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    // Cherche tous les utilisateurs qui ont liké le user courant
+    const usersWhoLikedMe = await User.find({ likes: req.user.id })
+      .select("name age city profilePictures bio likes")
+      .lean();
+
+    const received = usersWhoLikedMe.map(u => ({
+      id: u._id,
+      name: u.name,
+      age: u.age,
+      city: u.city,
+      profilePictures: u.profilePictures,
+      bio: u.bio,
+      isMatched: currentUser.likes.includes(String(u._id)) && u.likes.includes(req.user.id),
+    }));
+
+    res.status(200).json(received);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
