@@ -6,150 +6,180 @@
   <title>Chat - Rencontre</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="responsive.css" />
-
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffe3e3, #fff3f3);
+      font-family: 'Montserrat', 'Segoe UI', sans-serif;
+      background: #181818;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      color: #fff;
     }
-
     .chat-container {
       width: 100%;
       max-width: 400px;
       height: 600px;
-      background: white;
+      background: #232328;
       border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 24px #000a;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: #ff5f6d;
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  gap: 10px;
-}
-
-.chat-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.chat-header img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid white;
-}
-
-.chat-header span {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-#recipientLink {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: white;
-  gap: 10px;
-  flex: 1;
-}
-
-#recipientLink:hover {
-  opacity: 0.9;
-}
-
-
+    .chat-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      background: #121212;
+      color: #fff;
+      font-weight: bold;
+      font-size: 18px;
+      box-shadow: 0 2px 5px #0005;
+      gap: 10px;
+      min-height: 56px;
+    }
+    .chat-header button {
+      background: transparent;
+      border: none;
+      color: #ff5f6d;
+      font-size: 22px;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: color 0.16s;
+    }
+    .chat-header button:hover {
+      color: #fff;
+    }
+    .chat-header img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ff5f6d;
+      background: #444;
+    }
+    .chat-header span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1.12em;
+      font-weight: 600;
+      color: #fff;
+      cursor: help;
+    }
     .messages {
       flex: 1;
-      padding: 15px;
+      padding: 17px 13px 12px;
       overflow-y: auto;
-      background: #fdfdfd;
+      background: #181818;
     }
-
+    .no-messages {
+      text-align: center;
+      color: #888;
+      padding: 40px 0 0 0;
+      font-size: 1.08em;
+    }
     .message {
       padding: 10px 15px;
       border-radius: 20px;
       margin: 8px 0;
-      max-width: 70%;
+      max-width: 75%;
       word-wrap: break-word;
+      font-size: 1.07em;
+      line-height: 1.45;
     }
-
     .message.sent {
-      background-color: #ffccd5;
+      background: linear-gradient(90deg, #ff5f6d, #ffc371 80%);
       align-self: flex-end;
+      color: #fff;
+      font-weight: 500;
     }
-
     .message.received {
-      background-color: #f1f0f0;
+      background: #292933;
       align-self: flex-start;
+      color: #fff;
     }
-
     .message-input-container {
       display: flex;
-      padding: 10px;
-      border-top: 1px solid #eee;
-      background-color: #fff;
+      padding: 12px 10px;
+      border-top: 1px solid #222;
+      background: #1a1a1e;
+      align-items: center;
     }
-
-    .message-input-container input {
+    .message-input-container input[type="text"] {
       flex: 1;
-      padding: 10px;
+      padding: 11px 14px;
       border-radius: 25px;
-      border: 1px solid #ddd;
-      margin-right: 10px;
+      border: 1.5px solid #333;
+      background: #232328;
+      color: #fff;
+      margin-right: 8px;
       outline: none;
+      font-size: 1em;
+      transition: border-color 0.15s;
     }
-
-    .message-input-container button {
-      background-color: #ff5f6d;
+    .message-input-container input[type="text"]:focus {
+      border-color: #ff5f6d;
+    }
+    .emoji-btn {
+      background: none;
+      border: none;
+      color: #ffc371;
+      font-size: 1.6em;
+      margin-right: 6px;
+      cursor: pointer;
+      transition: color 0.18s;
+      outline: none;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .emoji-btn:hover { color: #ff5f6d; }
+    .message-input-container button[type="button"].send-btn {
+      background: #ff5f6d;
       border: none;
       color: white;
-      padding: 10px 15px;
+      padding: 10px 19px;
       border-radius: 20px;
       cursor: pointer;
-      transition: background 0.3s;
+      font-weight: 600;
+      font-size: 1em;
+      transition: background 0.18s;
+      margin-left: 2px;
     }
-
-    .message-input-container button:hover {
-      background-color: #e94e5b;
+    .message-input-container button[type="button"].send-btn:hover {
+      background: #e43f5a;
+    }
+    .message-input-container input[type="color"] {
+      display: none;
+    }
+    @media (max-width: 500px) {
+      .chat-container {
+        max-width: 100vw;
+        border-radius: 0;
+        height: 100vh;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="chat-container">
-   <div class="chat-header" id="chatHeader">
-  <button id="backButton" onclick="window.location.href='swipe.html'">←</button>
-  <img id="recipientPhoto" src="default.jpg" alt="Photo profil" />
-  <span id="recipientName">Discussion</span>
-</div>
+    <div class="chat-header" id="chatHeader">
+      <button id="backButton" aria-label="Retour à la messagerie" title="Retour" onclick="window.location.href='messagerie.html'">←</button>
+      <img id="recipientPhoto" src="icons/default-avatar.png" alt="Photo du profil destinataire" />
+      <span id="recipientName" title="">Discussion</span>
+    </div>
 
-
-    <div class="messages" id="messages"></div>
+    <div class="messages" id="messages">
+      <!-- messages JS -->
+    </div>
     <div class="message-input-container">
-      <input type="text" id="messageInput" placeholder="Écris un message..." />
-      <button onclick="sendMessage()">Envoyer</button>
+      <button class="emoji-btn" id="emojiBtn" title="Ajouter un emoji" type="button">😊</button>
+      <input type="text" id="messageInput" placeholder="Écris un message..." autocomplete="off" />
+      <button id="sendBtn" class="send-btn" type="button" onclick="sendMessage()">Envoyer</button>
     </div>
   </div>
 
@@ -199,20 +229,29 @@
           }
         });
 
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '';
         if (!res.ok) throw new Error('Erreur chargement messages');
 
         const messages = await res.json();
-        const messagesContainer = document.getElementById('messages');
-        messagesContainer.innerHTML = '';
 
-        messages.forEach(msg => {
-          const type = msg.sender === currentUserId ? 'sent' : 'received';
-          appendMessage(msg.content, type);
-        });
+        if (!messages || messages.length === 0) {
+          const noMsg = document.createElement('div');
+          noMsg.className = 'no-messages';
+          noMsg.textContent = "Aucun message pour le moment. Commence la discussion !";
+          messagesContainer.appendChild(noMsg);
+        } else {
+          messages.forEach(msg => {
+            const type = msg.sender === currentUserId ? 'sent' : 'received';
+            appendMessage(msg.content, type);
+          });
+        }
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       } catch (err) {
         console.error(err);
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '<div class="no-messages">Erreur lors du chargement des messages.</div>';
       }
     }
 
@@ -259,64 +298,79 @@
       }
     }
 
-    window.onload = loadMessages;
-  </script>
+    async function loadRecipientInfo() {
+      try {
+        const res = await fetch(`/api/users/${receiverId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        });
 
-  <!-- animation entre pages -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.body.classList.add("fade-in");
-    });
+        if (!res.ok) throw new Error("Impossible de charger le destinataire");
 
-    document.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", function (e) {
-        const target = link.getAttribute("href");
-        if (target && !target.startsWith("#") && !target.startsWith("javascript")) {
-          e.preventDefault();
-          document.body.classList.remove("fade-in");
-          document.body.style.opacity = 0;
-          setTimeout(() => {
-            window.location.href = target;
-          }, 500);
+        const user = await res.json();
+
+        const nameElement = document.getElementById("recipientName");
+        const avatar = document.getElementById("recipientPhoto");
+
+        nameElement.textContent = user.name || "Discussion";
+        nameElement.title = "Discussion avec " + (user.name || "le destinataire");
+        if (user.profilePictures && user.profilePictures.length > 0) {
+          avatar.src = user.profilePictures[0];
+        } else {
+          avatar.src = "icons/default-avatar.png";
         }
-      });
-    });
-  </script>
-<script>
-  async function loadReceiverName() {
-    try {
-      const res = await fetch(`/api/users/${receiverId}`, {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
-      });
-
-      if (!res.ok) throw new Error("Impossible de charger le destinataire");
-
-      const user = await res.json();
-
-      const nameElement = document.getElementById("receiverName");
-      const avatar = document.getElementById("receiverAvatar");
-
-      nameElement.textContent = "Discussion avec " + user.name;
-
-      // Affiche la photo de profil si elle existe
-      if (user.profilePictures && user.profilePictures.length > 0) {
-        avatar.src = user.profilePictures[0];
-        avatar.style.display = "inline-block";
+      } catch (err) {
+        console.error("Erreur lors du chargement du nom ou de la photo :", err);
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement du nom ou de la photo :", err);
     }
-  }
 
-  window.onload = () => {
-    loadMessages();
-    loadReceiverName();
-  };
-</script>
+    // Emoji picker natif
+    document.addEventListener("DOMContentLoaded", () => {
+      const emojiBtn = document.getElementById("emojiBtn");
+      const input = document.getElementById("messageInput");
+      emojiBtn.addEventListener("click", () => {
+        // Ouvre le sélecteur d'emoji natif (fonctionne sur mobile et certains navigateurs desktop)
+        if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {
+          input.focus();
+          // Sur mobile, le clavier inclut le picker emoji
+        } else {
+          // Desktop : on tente d'utiliser l'API Emoji ou le prompt système
+          // Fallback : prompt personnalisé
+          const emoji = prompt("Sélectionne ou colle un emoji :", "😊");
+          if (emoji) insertAtCursor(input, emoji);
+        }
+      });
+      // Permet aussi de coller un emoji depuis le clavier
+      input.addEventListener("paste", e => {
+        // Rien à faire, la saisie standard suffit
+      });
+      function insertAtCursor(field, value) {
+        // Standard insert at cursor for input[type=text]
+        if (document.selection) {
+          field.focus();
+          const sel = document.selection.createRange();
+          sel.text = value;
+        } else if (field.selectionStart || field.selectionStart === 0) {
+          const start = field.selectionStart;
+          const end = field.selectionEnd;
+          field.value = field.value.substring(0, start) + value + field.value.substring(end, field.value.length);
+          field.selectionStart = field.selectionEnd = start + value.length;
+          field.focus();
+        } else {
+          field.value += value;
+          field.focus();
+        }
+      }
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") sendMessage();
+      });
+    });
 
-
-
+    window.onload = () => {
+      loadMessages();
+      loadRecipientInfo();
+    };
+  </script>
 </body>
 </html>
