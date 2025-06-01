@@ -78,6 +78,20 @@ router.post("/:userId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// Pour afficher la liste de tous tes matchs, il te faudrait une route spécifique ex : /matches
+router.get("/matches", authMiddleware, async (req, res) => {
+  try {
+    const matches = await Match.find({
+      $or: [
+        { user1: req.user.id },
+        { user2: req.user.id }
+      ]
+    }).populate("user1 user2", "name profilePictures");
+    res.status(200).json(matches);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Récupère la liste des utilisateurs qui ont liké l'utilisateur connecté
 router.get("/received", authMiddleware, async (req, res) => {
