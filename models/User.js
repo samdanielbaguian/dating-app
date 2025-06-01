@@ -47,6 +47,14 @@ const UserSchema = new mongoose.Schema({
   googleId: { type: String }, // utilisateur créé via Google
 }, { timestamps: true }); // Ajoute createdAt et updatedAt
 
+// ... partie haute inchangée
+blockNonMatchMessages: { type: Boolean, default: false }, // Nouveau champ
+nonMatchContactsLog: [{
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  date: { type: Date, default: Date.now }
+}],
+// ... reste du schéma
+
 // Index géospatial
 UserSchema.index({ location: "2dsphere" });
 
