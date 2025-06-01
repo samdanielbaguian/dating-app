@@ -51,18 +51,19 @@ router.post("/:userId", authMiddleware, async (req, res) => {
         await match.save();
         isMatch = true;
 
-        // Optionnel : ne transmets que les champs publics à l'autre utilisateur (évite d'envoyer tout le doc User)
+        // Optionnel : ne transmets que les infos publiques
         const sanitizedCurrentUser = {
           _id: currentUser._id,
           name: currentUser.name,
-          profilePicture: currentUser.profilePicture,
+          profilePictures: currentUser.profilePictures,
         };
         const sanitizedLikedUser = {
           _id: likedUser._id,
           name: likedUser.name,
-          profilePicture: likedUser.profilePicture,
+          profilePictures: likedUser.profilePictures,
         };
 
+        // Notifie les deux via socket.io
         io.to(req.user.id).emit("newMatch", { matchId: match._id, user: sanitizedLikedUser });
         io.to(userId).emit("newMatch", { matchId: match._id, user: sanitizedCurrentUser });
       }
