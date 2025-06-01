@@ -13,7 +13,11 @@ const router = express.Router();
 // === MULTER CONFIGURATION ===
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, "uploads/"),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+    filename: (req, file, cb) => {
+        // Ajout de l'ID utilisateur dans le nom si disponible pour éviter les collisions
+        const userId = req.user ? req.user.id + "_" : "";
+        cb(null, userId + Date.now() + path.extname(file.originalname));
+    }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -33,6 +37,16 @@ const upload = multer({
     fileFilter
 });
 
+// === UTILS ===
+function userToSafeObject(user) {
+    const obj = user.toObject ? user.toObject() : { ...user._doc };
+    delete obj.password;
+    delete obj.refreshTokens;
+    delete obj.twoFactorSecret;
+    delete obj.twoFactorTempSecret;
+    return obj;
+}
+
 // === TOKEN GENERATION FUNCTIONS ===
 function generateAccessToken(user) {
     return jwt.sign(
@@ -51,7 +65,6 @@ function generateRefreshToken(user) {
 }
 
 // === REGISTER ROUTE ===
-// === REGISTER ROUTE ===
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -67,7 +80,7 @@ router.post("/register", async (req, res) => {
         await newUser.save();
 
         // On renvoie l'id pour que le frontend puisse continuer la saisie sur une autre page
-        res.status(201).json({ 
+        res.status(201).json({
             message: "Utilisateur créé avec succès !",
             userId: newUser._id
         });
@@ -77,21 +90,25 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// === COMPLETE PROFILE ROUTE ===
+// === COMPLETE PROFILE ROUTE (corrigé : auth + contrôle d’identité) ===
 // Mise à jour des infos complémentaires du profil après inscription
-router.put("/complete-profile/:userId", async (req, res) => {
+router.put("/complete-profile/:userId", authMiddleware, async (req, res) => {
     try {
         const { userId } = req.params;
+        if (req.user.id !== userId) {
+            return res.status(403).json({ message: "Accès refusé." });
+        }
+
         const {
             bio,
             location,        // Exemple: { type: "Point", coordinates: [lng, lat] }
             distanceMax,
-            preferences,     // Exemple: { minAge, maxAge }
+            preferences,     // Exemple: { ageRange: {min, max} }
             relationshipType,
             dateOfBirth,
             genderPreference,
             languages,
-            profilePictures  // Ici, tu peux envoyer un tableau de chemins d’images ou gérer upload à part
+            profilePictures  // Tableau de chemins d’images
         } = req.body;
 
         const user = await User.findById(userId);
@@ -110,13 +127,9 @@ router.put("/complete-profile/:userId", async (req, res) => {
 
         await user.save();
 
-        const userWithoutPassword = { ...user._doc };
-        delete userWithoutPassword.password;
-        delete userWithoutPassword.refreshTokens;
-
         res.json({
             message: "Profil complété avec succès.",
-            user: userWithoutPassword
+            user: userToSafeObject(user)
         });
 
     } catch (error) {
@@ -129,7 +142,6 @@ router.put("/complete-profile/:userId", async (req, res) => {
 router.put("/update", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
-
         const { bio, distanceMax, preferences, languages } = req.body;
 
         const updateFields = {};
@@ -144,13 +156,12 @@ router.put("/update", authMiddleware, async (req, res) => {
             { new: true }
         );
 
-        res.json({ message: "Profil mis à jour avec succès", user: updatedUser });
+        res.json({ message: "Profil mis à jour avec succès", user: userToSafeObject(updatedUser) });
     } catch (error) {
         console.error("Erreur mise à jour profil:", error);
         res.status(500).json({ message: "Erreur serveur" });
     }
 });
- 
 
 // === LOGIN ROUTE ===
 // Note : ici on vérifie si 2FA activé, si oui, il faut un code, sinon on renvoie tokens directement
@@ -193,16 +204,11 @@ router.post("/login", async (req, res) => {
         user.refreshTokens.push(refreshToken);
         await user.save();
 
-        // Nettoyage user avant envoi
-        const userWithoutPassword = { ...user._doc };
-        delete userWithoutPassword.password;
-        delete userWithoutPassword.refreshTokens;
-
         res.json({
             message: "Connexion réussie !",
             accessToken,
             refreshToken,
-            user: userWithoutPassword
+            user: userToSafeObject(user)
         });
 
     } catch (error) {
@@ -244,15 +250,11 @@ router.post("/verify-2fa", async (req, res) => {
         user.refreshTokens.push(refreshToken);
         await user.save();
 
-        const userWithoutPassword = { ...user._doc };
-        delete userWithoutPassword.password;
-        delete userWithoutPassword.refreshTokens;
-
         res.json({
             message: "Code 2FA vérifié avec succès.",
             accessToken,
             refreshToken,
-            user: userWithoutPassword
+            user: userToSafeObject(user)
         });
 
     } catch (err) {
