@@ -221,7 +221,7 @@
           const lastMsg = conv.lastMessage?.content || "";
           const lastMsgDate = conv.lastMessage?.createdAt ? formatDate(conv.lastMessage.createdAt) : "";
           // Badge non lus
-          const unreadCount = conv.unreadCount || 0;
+          const unreadCount = conv.unreadCount[currentUserId] || 0;
           const isOnline = participant.isOnline; // doit être fourni par le backend (sinon retire)
           const hasUnread = unreadCount > 0;
           const lastMsgClass = hasUnread ? "conversation-lastmsg unread" : "conversation-lastmsg";
