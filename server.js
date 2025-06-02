@@ -17,7 +17,7 @@ const likeRoutes = require("./routes/likes");
 const passport = require("passport");
 const photoRoutes = require("./routes/photo");
 require("./config/passport");
-
+const conversationRoutes = require('./routes/conversationRoutes');
 const photoRoutes = require("./routes/photo");
 
 
@@ -60,7 +60,7 @@ app.use("/api/matches", matchingRoutes); // Enregistrer les routes de matching
 app.use("/api/likes", likeRoutes);   
 app.use("/api/upload", uploadRoutes);
 app.use("/api/photo", photoRoutes);
-
+app.use('/api', conversationRoutes);
    // pour les likes
 // Socket.io : gestion en temps réel
 io.on("connection", (socket) => {
