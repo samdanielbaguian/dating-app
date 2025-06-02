@@ -1,54 +1,42 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 
+// Récupérer toutes les conversations de l'utilisateur connecté, enrichies (participants et lastMessage)
 exports.getUserConversations = async (req, res) => {
   try {
-    const userId = req.user._id; // Supposé que tu utilises un middleware d’auth
+    const userId = req.user._id;
 
     const conversations = await Conversation.find({ participants: userId })
+      .populate('participants', 'name profilePicture') // n'affiche que les champs nécessaires
       .populate({
-        path: "participants",
-        select: "name profilePictures isOnline isPremium"
-      })
-      .populate({
-        path: "lastMessage",
-        select: "message sender receiver timestamp seen"
+        path: 'lastMessage',
+        populate: { path: 'sender', select: 'name profilePicture' } // enrichit le lastMessage avec l'expéditeur
       })
       .sort({ updatedAt: -1 });
 
-    const result = conversations.map(conv => {
-      return {
-        _id: conv._id,
-        participants: conv.participants,
-        lastMessage: conv.lastMessage,
-        unreadCount: conv.unreadCount.get(userId.toString()) || 0
-      };
-    });
-
-    res.json(result);
+    res.json(conversations);
   } catch (error) {
     res.status(500).json({ error: "Erreur lors de la récupération des conversations" });
   }
 };
 
+// Marquer une conversation comme lue pour l'utilisateur connecté (remet unreadCount à zéro)
 exports.markConversationAsRead = async (req, res) => {
   try {
     const userId = req.user._id;
     const { conversationId } = req.body;
 
-    // 1. Met le compteur à 0 pour cet utilisateur
-    await Conversation.findByIdAndUpdate(conversationId, {
-      $set: { [`unreadCount.${userId}`]: 0 }
-    });
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
 
-    // 2. Marque les messages reçus comme lus
-    await Message.updateMany(
-      { receiver: userId, seen: false },
-      { $set: { seen: true } }
-    );
+    // Remet à zéro le compteur de non-lus pour cet utilisateur
+    conversation.unreadCount.set(userId.toString(), 0);
+    await conversation.save();
 
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: "Erreur lors du passage en lu" });
+    res.status(500).json({ error: 'Erreur lors de la mise à jour de la conversation' });
   }
 };
