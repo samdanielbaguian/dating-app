@@ -13,6 +13,8 @@
       background: #181818;
       color: #fff;
       min-height: 100vh;
+      /* Pour que le contenu ne passe pas sous la barre */
+      padding-bottom: 70px;
     }
     .messagerie-container {
       max-width: 430px;
@@ -166,6 +168,51 @@
         right: 18px;
       }
     }
+    /* Styles pour la bottom-nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: #232328;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1.5px solid #222;
+      box-shadow: 0 -2px 10px #0004;
+      z-index: 1000;
+      height: 60px;
+      padding: 0;
+    }
+    .bottom-nav .nav-btn {
+      background: none;
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 8px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      height: 60px;
+      position: relative;
+    }
+    .bottom-nav .nav-btn.active .nav-icon {
+      filter: drop-shadow(0 0 4px #ff5f6d88);
+    }
+    .bottom-nav .nav-icon,
+    .bottom-nav .nav-avatar {
+      width: 30px;
+      height: 30px;
+      object-fit: cover;
+      margin-bottom: 2px;
+      border-radius: 50%;
+      background: #eee;
+    }
+    .bottom-nav .nav-avatar {
+      border: 2px solid #fff;
+    }
   </style>
 </head>
 <body>
@@ -176,6 +223,26 @@
       <!-- JS: conversations ici -->
     </ul>
   </div>
+
+  <!-- BARRE DE NAVIGATION INFERIEURE -->
+  <nav class="bottom-nav">
+    <button class="nav-btn" id="navHome" title="Accueil" onclick="window.location.href='index.html'">
+      <img src="icons/acceuil gris.svg" alt="Accueil" class="nav-icon"
+           data-active="icons/acceuil.svg" data-inactive="icons/acceuil gris.svg">
+    </button>
+    <button class="nav-btn active" id="navMessages" title="Messages" onclick="window.location.href='messagerie.html'">
+      <img src="icons/messages.svg" alt="Messages" class="nav-icon"
+           data-active="icons/messages.svg" data-inactive="icons/messages gris.svg">
+    </button>
+    <!-- LIKES : Ouvre likes.html -->
+    <button class="nav-btn" id="navLikes" title="Likes reçus" onclick="window.location.href='likes.html'">
+      <img src="icons/likepage gris.svg" alt="Likes reçus" class="nav-icon"
+           data-active="icons/likepage.svg" data-inactive="icons/likepage gris.svg">
+    </button>
+    <button class="nav-btn" id="navProfile" title="Profil" onclick="window.location.href='profile.html'">
+      <img src="uploads/user_avatar.jpg" alt="Mon profil" class="nav-avatar">
+    </button>
+  </nav>
 
   <script>
     // Actualisation auto toutes les 20 secondes
@@ -221,7 +288,7 @@
           const lastMsg = conv.lastMessage?.content || "";
           const lastMsgDate = conv.lastMessage?.createdAt ? formatDate(conv.lastMessage.createdAt) : "";
           // Badge non lus
-          const unreadCount = conv.unreadCount[currentUserId] || 0;
+          const unreadCount = conv.unreadCount && conv.unreadCount[currentUserId] ? conv.unreadCount[currentUserId] : 0;
           const isOnline = participant.isOnline; // doit être fourni par le backend (sinon retire)
           const hasUnread = unreadCount > 0;
           const lastMsgClass = hasUnread ? "conversation-lastmsg unread" : "conversation-lastmsg";
@@ -268,6 +335,28 @@
     window.onload = () => {
       loadConversations();
       startAutoRefresh();
+      // Barre nav : activer bouton Messages
+      document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('navMessages').classList.add('active');
+      // Icônes actives/inactives
+      document.querySelectorAll('.bottom-nav .nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => {
+            b.classList.remove('active');
+            const img = b.querySelector('img.nav-icon');
+            if(img) img.src = img.getAttribute('data-inactive');
+          });
+          this.classList.add('active');
+          const img = this.querySelector('img.nav-icon');
+          if(img) img.src = img.getAttribute('data-active');
+        });
+      });
+      // Affiche icône active au chargement
+      const msgBtn = document.getElementById('navMessages');
+      if (msgBtn) {
+        const img = msgBtn.querySelector('img.nav-icon');
+        if (img) img.src = img.getAttribute('data-active');
+      }
     };
   </script>
 </body>
