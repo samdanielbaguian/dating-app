@@ -258,6 +258,17 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
+// === GET ME (Profil utilisateur connecté) ===
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+    res.json({ user: user.toSafeObject() });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
 // === LOGOUT ROUTE ===
 router.post("/logout", authMiddleware, async (req, res) => {
   try {
