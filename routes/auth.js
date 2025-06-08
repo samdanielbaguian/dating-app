@@ -257,7 +257,52 @@ router.post("/refresh", async (req, res) => {
     return res.status(403).json({ message: "Refresh token invalide ou expiré." });
   }
 });
+// === UPLOAD PHOTO DE PROFIL ===
+router.post(
+  '/upload-photo',
+  authMiddleware,
+  upload.array('photos', 4), // max 4 fichiers
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
 
+      // On récupère le chemin des fichiers uploadés
+      const files = req.files.map(file => file.path.replace(/\\/g, '/'));
+
+      // On ajoute les nouvelles photos (tu peux choisir de remplacer ou d’ajouter)
+      user.profilePictures = [...(user.profilePictures || []), ...files].slice(0, 4); // garde max 4 photos
+      await user.save();
+
+      res.json({
+        message: "Photos uploadées avec succès.",
+        profilePictures: user.profilePictures
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+// Supprimer une photo de profil (par son nom ou chemin)
+router.delete('/remove-photo', authMiddleware, async (req, res) => {
+  try {
+    const { url } = req.body; // url ou path de la photo à supprimer
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+
+    // Retirer la photo du tableau profilePictures
+    user.profilePictures = (user.profilePictures || []).filter(pic => pic !== url);
+    await user.save();
+
+    // Optionnel : supprimer le fichier sur le disque
+    // const fs = require('fs');
+    // fs.unlink(url, (err) => {});
+
+    res.json({ message: "Photo supprimée.", profilePictures: user.profilePictures });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // === GET ME (Profil utilisateur connecté) ===
 router.get("/me", authMiddleware, async (req, res) => {
   try {
