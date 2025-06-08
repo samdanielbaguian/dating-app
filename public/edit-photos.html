@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gérer mes photos de profil</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #fff; color: #111; }
+    .carousel-row {
+      display: flex;
+      gap: 24px;
+      margin: 30px auto 20px auto;
+      justify-content: center;
+      align-items: center;
+      max-width: 600px;
+    }
+    .carousel-slot {
+      width: 110px;
+      height: 140px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 6px 0 #0001;
+      transition: box-shadow 0.2s;
+    }
+    .carousel-slot:hover { box-shadow: 0 4px 16px 0 #0002; }
+    .carousel-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #f8f8f8;
+    }
+    .add-photo-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #222;
+      font-size: 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.75;
+      transition: opacity 0.1s;
+    }
+    .add-photo-btn:hover { opacity: 1; }
+    .remove-photo-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #fff;
+      border: 1px solid #e44;
+      color: #e44;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 1px 2px #0002;
+      transition: background 0.2s;
+    }
+    .remove-photo-btn:hover { background: #e44; color: #fff; }
+    .photo-label {
+      font-size: 12px;
+      color: #333;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .carousel-slot input[type="file"] {
+      display: none;
+    }
+    .back-link { display: block; margin: 30px auto 0 auto; text-align: center; color: #111; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;font-weight:normal;margin-top:30px;margin-bottom:10px;">Mes photos de profil</h1>
+  <div class="carousel-row" id="photoCarousel"></div>
+  <div style="text-align:center;">
+    <span class="photo-label">Maximum 4 photos. Glisser-déposer pour changer l'ordre (bientôt).</span>
+  </div>
+  <a href="settings.html" class="back-link">← Retour aux paramètres</a>
+  <input type="file" id="hiddenFileInput" style="display:none" accept="image/png, image/jpeg" />
+  <script src="edit-photos.js"></script>
+</body>
+</html>
