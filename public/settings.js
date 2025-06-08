@@ -218,8 +218,60 @@ function setupProfileListeners() {
   }
 }
 
-// Initialisation au chargement de la page
+function setupPhotoUpload() {
+  const form = document.getElementById('photoUploadForm');
+  const input = document.getElementById('photoInput');
+  const preview = document.getElementById('photoPreview');
+
+  // Prévisualisation rapide
+  input.addEventListener('change', () => {
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.maxWidth = "100px";
+        img.style.margin = "5px";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = getToken();
+    const formData = new FormData();
+    for (const file of input.files) {
+      formData.append('photos', file);
+    }
+    try {
+      const res = await fetch('/api/auth/upload-photo', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Photos enregistrées !');
+        // Mets à jour l’affichage (avatar, carousel, etc.)
+        loadProfile();
+      } else {
+        alert(data.message || "Erreur lors de l’upload");
+      }
+    } catch (err) {
+      alert("Erreur lors de l’upload");
+      console.error(err);
+    }
+  });
+}
+
+// Ajoute cette ligne à la fin du DOMContentLoaded :
 window.addEventListener('DOMContentLoaded', () => {
   loadProfile();
   setupProfileListeners();
+  setupPhotoUpload(); // <-- Ajoute cette ligne
 });
