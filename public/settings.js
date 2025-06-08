@@ -147,6 +147,61 @@ async function updateProfile(payload, token) {
   }
 }
 
+// ... (le reste du fichier reste identique)
+
+// Ajoute ceci dans fillProfileFields pour remplir les champs éditables (si tu as des input ou textarea pour bio/langues etc.)
+function fillProfileFields(user) {
+  // ... (déjà présent)
+  // Ajout pour champs éditables :
+  if(document.getElementById('bioInput')) document.getElementById('bioInput').value = user.bio || "";
+  if(document.getElementById('languagesInput')) document.getElementById('languagesInput').value = (user.languages || []).join(', ');
+  if(document.getElementById('relationshipTypeSelect')) document.getElementById('relationshipTypeSelect').value = user.relationshipType || "";
+  if(document.getElementById('genderPreferenceSelect')) document.getElementById('genderPreferenceSelect').value = user.genderPreference || "";
+  // ...
+}
+
+// Ajoute ces écouteurs dans setupProfileListeners
+function setupProfileListeners() {
+  const token = getToken();
+
+  // Distance et âge déjà présents...
+
+  // Bio
+  const bioInput = document.getElementById('bioInput');
+  if (bioInput) {
+    bioInput.addEventListener('change', async (e) => {
+      await updateProfile({ bio: e.target.value }, token);
+    });
+  }
+
+  // Langues (input séparé par virgule)
+  const languagesInput = document.getElementById('languagesInput');
+  if (languagesInput) {
+    languagesInput.addEventListener('change', async (e) => {
+      const langs = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+      await updateProfile({ languages: langs }, token);
+    });
+  }
+
+  // Préférence relationnelle
+  const relationshipTypeSelect = document.getElementById('relationshipTypeSelect');
+  if (relationshipTypeSelect) {
+    relationshipTypeSelect.addEventListener('change', async (e) => {
+      await updateProfile({ relationshipType: e.target.value }, token);
+    });
+  }
+
+  // Genre préféré
+  const genderPreferenceSelect = document.getElementById('genderPreferenceSelect');
+  if (genderPreferenceSelect) {
+    genderPreferenceSelect.addEventListener('change', async (e) => {
+      await updateProfile({ genderPreference: e.target.value }, token);
+    });
+  }
+
+  // ... (sliders distance et âge restent)
+}
+
 // Initialisation au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
   loadProfile();
