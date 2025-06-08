@@ -269,6 +269,116 @@ function setupPhotoUpload() {
   });
 }
 
+// Affiche toutes les photos avec un bouton de suppression
+function renderPhotoGallery(profilePictures) {
+  const gallery = document.getElementById('photoGallery');
+  gallery.innerHTML = "";
+  if (!profilePictures || profilePictures.length === 0) {
+    gallery.innerHTML = "<em>Aucune photo pour l’instant.</em>";
+    return;
+  }
+  profilePictures.forEach(url => {
+    const div = document.createElement('div');
+    div.className = "photo-thumb";
+    div.style.display = "inline-block";
+    div.style.position = "relative";
+    div.style.margin = "5px";
+    div.innerHTML = `
+      <img src="${url}" style="max-width:100px;border-radius:8px;" />
+      <button class="remove-photo" title="Supprimer" style="
+        position:absolute;top:2px;right:2px;background:#f44;
+        color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;
+        font-weight:bold;font-size:16px;line-height:18px;">×</button>
+      <a href="${url}" download style="display:block;text-align:center;font-size:12px;margin-top:4px;">Télécharger</a>
+    `;
+    // Listener suppression
+    div.querySelector('.remove-photo').addEventListener('click', async () => {
+      if (confirm("Supprimer cette photo ?")) {
+        await removePhoto(url);
+      }
+    });
+    gallery.appendChild(div);
+  });
+}
+
+// Upload photo(s)
+function setupPhotoUpload() {
+  const form = document.getElementById('photoUploadForm');
+  const input = document.getElementById('photoInput');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = getToken();
+    const formData = new FormData();
+    for (const file of input.files) {
+      formData.append('photos', file);
+    }
+    try {
+      const res = await fetch('/api/auth/upload-photo', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Photos enregistrées !');
+        renderPhotoGallery(data.profilePictures);
+      } else {
+        alert(data.message || "Erreur lors de l’upload");
+      }
+    } catch (err) {
+      alert("Erreur lors de l’upload");
+      console.error(err);
+    }
+  });
+}
+
+// Supprime une photo
+async function removePhoto(url) {
+  const token = getToken();
+  try {
+    const res = await fetch('/api/auth/remove-photo', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      renderPhotoGallery(data.profilePictures);
+    } else {
+      alert(data.message || "Erreur lors de la suppression");
+    }
+  } catch (err) {
+    alert("Erreur lors de la suppression");
+    console.error(err);
+  }
+}
+
+// --> Quand tu charges le profil, affiche la galerie :
+async function loadProfile() {
+  const token = getToken();
+  if (!token) {
+    alert("Vous devez être connecté.");
+    window.location.href = "login.html";
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/me`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error("Erreur lors du chargement du profil");
+    const data = await res.json();
+    fillProfileFields(data.user);
+    renderPhotoGallery(data.user.profilePictures || []);
+  } catch (err) {
+    alert("Impossible de charger vos informations.");
+    console.error(err);
+  }
+}
+
 // Ajoute cette ligne à la fin du DOMContentLoaded :
 window.addEventListener('DOMContentLoaded', () => {
   loadProfile();
