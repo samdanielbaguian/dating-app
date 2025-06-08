@@ -1,69 +1,10 @@
 // settings.js
 
-// Emplacement du backend (change si besoin)
 const API_BASE = "/api/auth";
 
 // Récupère le token (depuis localStorage, ou autre selon ton app)
 function getToken() {
   return localStorage.getItem("token");
-}
-
-// Remplit les champs du profil à partir de l'objet user
-function fillProfileFields(user) {
-  document.getElementById('userNameAge').textContent = user.name && user.dateOfBirth
-    ? `${user.name}, ${getUserAge(user.dateOfBirth)}`
-    : user.name || "";
-  document.getElementById('bioValue').textContent = user.bio || "";
-  document.getElementById('birthdateValue').textContent = user.dateOfBirth
-    ? new Date(user.dateOfBirth).toLocaleDateString('fr-FR')
-    : "";
-  document.getElementById('usernameValue').textContent = user.email || "";
-  document.getElementById('profileCompletion').textContent = computeProfileCompletion(user) + "%";
-
-  // Badges genres
-  const genderBadges = document.getElementById('genderBadges');
-  genderBadges.innerHTML = "";
-  if (user.genderPreference === "Male" || user.genderPreference === "Both")
-    genderBadges.innerHTML += `<span class="badge">Homme</span>`;
-  if (user.genderPreference === "Female" || user.genderPreference === "Both")
-    genderBadges.innerHTML += `<span class="badge">Femme</span>`;
-
-  // Badges langues
-  const languagesBadges = document.getElementById('languagesBadges');
-  languagesBadges.innerHTML = "";
-  (user.languages || []).forEach(lang => {
-    languagesBadges.innerHTML += `<span class="badge">${lang}</span>`;
-  });
-
-  // Préférence relation
-  const relationshipBadges = document.getElementById('relationshipBadges');
-  relationshipBadges.innerHTML = "";
-  if(user.relationshipType)
-    relationshipBadges.innerHTML = `<span class="badge">${user.relationshipType}</span>`;
-
-  // Sliders distance & âge recherché
-  const distanceSlider = document.getElementById('distanceSlider');
-  const distanceValue = document.getElementById('distanceValue');
-  if(distanceSlider && user.distanceMax !== undefined) {
-    distanceSlider.value = user.distanceMax;
-    distanceValue.textContent = `${user.distanceMax} km`;
-  }
-  const ageMinSlider = document.getElementById('ageMinSlider');
-  const ageMaxSlider = document.getElementById('ageMaxSlider');
-  const ageRangeValue = document.getElementById('ageRangeValue');
-  if(user.preferences?.ageRange) {
-    ageMinSlider.value = user.preferences.ageRange.min;
-    ageMaxSlider.value = user.preferences.ageRange.max;
-    ageRangeValue.textContent = `${user.preferences.ageRange.min} - ${user.preferences.ageRange.max} ans`;
-  }
-
-  // Avatar
-  const avatarImg = document.querySelector('.avatar-img');
-  if(avatarImg && user.profilePictures && user.profilePictures.length > 0) {
-    avatarImg.src = user.profilePictures[0];
-  }
-  // Progression profil
-  setProfileCompletion(computeProfileCompletion(user));
 }
 
 // Calcule l'âge à partir de la date de naissance
@@ -84,7 +25,99 @@ function computeProfileCompletion(user) {
   return Math.round(100 * filled / fields.length);
 }
 
-// Récupère le profil au chargement
+// Affiche la complétion du profil (progress bar ou pourcentage)
+function setProfileCompletion(percent) {
+  const progress = document.getElementById('profileCompletion');
+  if(progress) progress.textContent = percent + "%";
+}
+
+// Remplit les champs du profil à partir de l'objet user
+function fillProfileFields(user) {
+  // Texte et badges
+  if(document.getElementById('userNameAge'))
+    document.getElementById('userNameAge').textContent = user.name && user.dateOfBirth
+      ? `${user.name}, ${getUserAge(user.dateOfBirth)}`
+      : user.name || "";
+
+  if(document.getElementById('bioValue'))
+    document.getElementById('bioValue').textContent = user.bio || "";
+
+  if(document.getElementById('birthdateValue'))
+    document.getElementById('birthdateValue').textContent = user.dateOfBirth
+      ? new Date(user.dateOfBirth).toLocaleDateString('fr-FR')
+      : "";
+
+  if(document.getElementById('usernameValue'))
+    document.getElementById('usernameValue').textContent = user.email || "";
+
+  if(document.getElementById('profileCompletion'))
+    setProfileCompletion(computeProfileCompletion(user));
+
+  // Badges genres
+  const genderBadges = document.getElementById('genderBadges');
+  if(genderBadges) {
+    genderBadges.innerHTML = "";
+    if (user.genderPreference === "Male" || user.genderPreference === "Both")
+      genderBadges.innerHTML += `<span class="badge">Homme</span>`;
+    if (user.genderPreference === "Female" || user.genderPreference === "Both")
+      genderBadges.innerHTML += `<span class="badge">Femme</span>`;
+  }
+
+  // Badges langues
+  const languagesBadges = document.getElementById('languagesBadges');
+  if(languagesBadges) {
+    languagesBadges.innerHTML = "";
+    (user.languages || []).forEach(lang => {
+      languagesBadges.innerHTML += `<span class="badge">${lang}</span>`;
+    });
+  }
+
+  // Préférence relation
+  const relationshipBadges = document.getElementById('relationshipBadges');
+  if(relationshipBadges) {
+    relationshipBadges.innerHTML = "";
+    if(user.relationshipType)
+      relationshipBadges.innerHTML = `<span class="badge">${user.relationshipType}</span>`;
+  }
+
+  // Sliders distance & âge recherché
+  const distanceSlider = document.getElementById('distanceSlider');
+  const distanceValue = document.getElementById('distanceValue');
+  if(distanceSlider && user.distanceMax !== undefined) {
+    distanceSlider.value = user.distanceMax;
+    if(distanceValue) distanceValue.textContent = `${user.distanceMax} km`;
+  }
+  const ageMinSlider = document.getElementById('ageMinSlider');
+  const ageMaxSlider = document.getElementById('ageMaxSlider');
+  const ageRangeValue = document.getElementById('ageRangeValue');
+  if(user.preferences?.ageRange && ageMinSlider && ageMaxSlider) {
+    ageMinSlider.value = user.preferences.ageRange.min;
+    ageMaxSlider.value = user.preferences.ageRange.max;
+    if(ageRangeValue)
+      ageRangeValue.textContent = `${user.preferences.ageRange.min} - ${user.preferences.ageRange.max} ans`;
+  }
+
+  // Avatar
+  const avatarImg = document.querySelector('.avatar-img');
+  if(avatarImg && user.profilePictures && user.profilePictures.length > 0) {
+    avatarImg.src = user.profilePictures[0];
+  }
+
+  // --- Pré-remplissage des champs éditables
+  const bioInput = document.getElementById('bioInput');
+  if(bioInput) bioInput.value = user.bio || "";
+
+  const languagesInput = document.getElementById('languagesInput');
+  if(languagesInput) languagesInput.value = (user.languages || []).join(', ');
+
+  const relationshipTypeSelect = document.getElementById('relationshipTypeSelect');
+  if(relationshipTypeSelect) relationshipTypeSelect.value = user.relationshipType || "";
+
+  const genderPreferenceSelect = document.getElementById('genderPreferenceSelect');
+  if(genderPreferenceSelect) genderPreferenceSelect.value = user.genderPreference || "";
+}
+
+// Charge le profil utilisateur au chargement de la page
 async function loadProfile() {
   const token = getToken();
   if (!token) {
@@ -105,28 +138,7 @@ async function loadProfile() {
   }
 }
 
-// Sauvegarde les modifications dès qu'un champ change
-function setupProfileListeners() {
-  const token = getToken();
-  // Distance
-  document.getElementById('distanceSlider').addEventListener('change', async (e) => {
-    await updateProfile({ distanceMax: Number(e.target.value) }, token);
-  });
-  // Age recherché
-  const ageMinSlider = document.getElementById('ageMinSlider');
-  const ageMaxSlider = document.getElementById('ageMaxSlider');
-  function saveAgePrefs() {
-    updateProfile({ preferences: { ageRange: {
-      min: Number(ageMinSlider.value),
-      max: Number(ageMaxSlider.value)
-    } } }, token);
-  }
-  ageMinSlider.addEventListener('change', saveAgePrefs);
-  ageMaxSlider.addEventListener('change', saveAgePrefs);
-  // Tu peux ajouter d'autres listeners pour bio, langues, etc.
-}
-
-// Envoie une mise à jour du profil
+// Met à jour le profil utilisateur côté serveur
 async function updateProfile(payload, token) {
   try {
     const res = await fetch(`${API_BASE}/update`, {
@@ -139,7 +151,7 @@ async function updateProfile(payload, token) {
     });
     if(!res.ok) throw new Error("Erreur lors de la sauvegarde");
     const data = await res.json();
-    // Optionnel, mets à jour visuellement :
+    // Mets à jour visuellement :
     fillProfileFields(data.user);
   } catch (err) {
     alert("Erreur lors de la sauvegarde du profil.");
@@ -147,26 +159,32 @@ async function updateProfile(payload, token) {
   }
 }
 
-// ... (le reste du fichier reste identique)
-
-// Ajoute ceci dans fillProfileFields pour remplir les champs éditables (si tu as des input ou textarea pour bio/langues etc.)
-function fillProfileFields(user) {
-  // ... (déjà présent)
-  // Ajout pour champs éditables :
-  if(document.getElementById('bioInput')) document.getElementById('bioInput').value = user.bio || "";
-  if(document.getElementById('languagesInput')) document.getElementById('languagesInput').value = (user.languages || []).join(', ');
-  if(document.getElementById('relationshipTypeSelect')) document.getElementById('relationshipTypeSelect').value = user.relationshipType || "";
-  if(document.getElementById('genderPreferenceSelect')) document.getElementById('genderPreferenceSelect').value = user.genderPreference || "";
-  // ...
-}
-
-// Ajoute ces écouteurs dans setupProfileListeners
+// Installe les listeners sur tous les champs modifiables
 function setupProfileListeners() {
   const token = getToken();
 
-  // Distance et âge déjà présents...
+  // Distance (slider)
+  const distanceSlider = document.getElementById('distanceSlider');
+  if(distanceSlider) {
+    distanceSlider.addEventListener('change', async (e) => {
+      await updateProfile({ distanceMax: Number(e.target.value) }, token);
+    });
+  }
 
-  // Bio
+  // Age recherché (sliders min et max)
+  const ageMinSlider = document.getElementById('ageMinSlider');
+  const ageMaxSlider = document.getElementById('ageMaxSlider');
+  function saveAgePrefs() {
+    if(ageMinSlider && ageMaxSlider)
+      updateProfile({ preferences: { ageRange: {
+        min: Number(ageMinSlider.value),
+        max: Number(ageMaxSlider.value)
+      } } }, token);
+  }
+  if(ageMinSlider) ageMinSlider.addEventListener('change', saveAgePrefs);
+  if(ageMaxSlider) ageMaxSlider.addEventListener('change', saveAgePrefs);
+
+  // Bio (textarea ou input)
   const bioInput = document.getElementById('bioInput');
   if (bioInput) {
     bioInput.addEventListener('change', async (e) => {
@@ -183,7 +201,7 @@ function setupProfileListeners() {
     });
   }
 
-  // Préférence relationnelle
+  // Préférence relationnelle (select)
   const relationshipTypeSelect = document.getElementById('relationshipTypeSelect');
   if (relationshipTypeSelect) {
     relationshipTypeSelect.addEventListener('change', async (e) => {
@@ -191,20 +209,17 @@ function setupProfileListeners() {
     });
   }
 
-  // Genre préféré
+  // Genre préféré (select)
   const genderPreferenceSelect = document.getElementById('genderPreferenceSelect');
   if (genderPreferenceSelect) {
     genderPreferenceSelect.addEventListener('change', async (e) => {
       await updateProfile({ genderPreference: e.target.value }, token);
     });
   }
-
-  // ... (sliders distance et âge restent)
 }
 
 // Initialisation au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
   loadProfile();
   setupProfileListeners();
-  // Tu peux ajouter ici d'autres listeners pour les autres champs modifiables
 });
