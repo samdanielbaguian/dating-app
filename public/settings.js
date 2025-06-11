@@ -38,6 +38,68 @@ function setProfileCompletion(percent) {
   if (progress) progress.textContent = Math.round(pct) + "%";
 }
 
+// GENRE PRÉFÉRÉ (multi-selection possible)
+const GENDER_OPTIONS = [
+  { value: "Male", label: "Homme" },
+  { value: "Female", label: "Femme" },
+  { value: "Both", label: "Les deux" }
+];
+function renderGenderPreferenceBadges(selected = []) {
+  const row = document.getElementById('genderPreferenceBadges');
+  if (!row) return;
+  row.innerHTML = "";
+  GENDER_OPTIONS.forEach(opt => {
+    const badge = document.createElement('span');
+    badge.className = "badge-toggle" + (selected.includes(opt.value) ? " active" : "");
+    badge.textContent = opt.label;
+    badge.tabIndex = 0;
+    badge.setAttribute("role","button");
+    badge.setAttribute("aria-pressed", selected.includes(opt.value) ? "true" : "false");
+    badge.addEventListener('click', async () => {
+      let newSelected = Array.isArray(selected) ? [...selected] : [];
+      if (newSelected.includes(opt.value)) {
+        newSelected = newSelected.filter(v => v !== opt.value);
+      } else {
+        newSelected.push(opt.value);
+      }
+      await updateProfile({ genderPreference: newSelected }, getToken());
+      renderGenderPreferenceBadges(newSelected);
+    });
+    row.appendChild(badge);
+  });
+}
+
+// PRÉFÉRENCE DE RELATION (multi-selection possible)
+const RELATIONSHIP_OPTIONS = [
+  { value: "Long terme", label: "Long terme" },
+  { value: "Court terme", label: "Court terme" },
+  { value: "Pour le fun", label: "Pour le fun" }
+];
+function renderRelationshipTypeBadges(selected = []) {
+  const row = document.getElementById('relationshipTypeBadges');
+  if (!row) return;
+  row.innerHTML = "";
+  RELATIONSHIP_OPTIONS.forEach(opt => {
+    const badge = document.createElement('span');
+    badge.className = "badge-toggle" + (selected.includes(opt.value) ? " active" : "");
+    badge.textContent = opt.label;
+    badge.tabIndex = 0;
+    badge.setAttribute("role","button");
+    badge.setAttribute("aria-pressed", selected.includes(opt.value) ? "true" : "false");
+    badge.addEventListener('click', async () => {
+      let newSelected = Array.isArray(selected) ? [...selected] : [];
+      if (newSelected.includes(opt.value)) {
+        newSelected = newSelected.filter(v => v !== opt.value);
+      } else {
+        newSelected.push(opt.value);
+      }
+      await updateProfile({ relationshipType: newSelected }, getToken());
+      renderRelationshipTypeBadges(newSelected);
+    });
+    row.appendChild(badge);
+  });
+}
+
 // Remplit les champs du profil à partir de l'objet user
 function fillProfileFields(user) {
   // Nom + âge
@@ -66,14 +128,18 @@ function fillProfileFields(user) {
   const usernameValue = document.getElementById('usernameValue');
   if (usernameValue) usernameValue.textContent = user.username || user.email || "";
 
-  // Genres préférés (pour affichage badge)
+  // Genres préférés (affichage badge display non éditable ici)
   const genderBadges = document.getElementById('genderBadges');
   if (genderBadges) {
     genderBadges.innerHTML = "";
-    if (user.genderPreference === "Male" || user.genderPreference === "Both")
+    let gp = user.genderPreference;
+    let arr = Array.isArray(gp) ? gp : gp ? [gp] : [];
+    if (arr.includes("Male") || arr.includes("Both"))
       genderBadges.innerHTML += `<span class="badge">Homme</span>`;
-    if (user.genderPreference === "Female" || user.genderPreference === "Both")
+    if (arr.includes("Female") || arr.includes("Both"))
       genderBadges.innerHTML += `<span class="badge">Femme</span>`;
+    if (arr.includes("Both"))
+      genderBadges.innerHTML += `<span class="badge">Les deux</span>`;
   }
 
   // Langues parlées (badges)
@@ -85,13 +151,11 @@ function fillProfileFields(user) {
     });
   }
 
-  // Préférence relationnelle (badges)
-  const relationshipBadges = document.getElementById('relationshipBadges');
-  if (relationshipBadges) {
-    relationshipBadges.innerHTML = "";
-    if (user.relationshipType)
-      relationshipBadges.innerHTML = `<span class="badge">${user.relationshipType}</span>`;
-  }
+  // Badges interactifs pour genre & relation
+  let gp = user.genderPreference;
+  renderGenderPreferenceBadges(Array.isArray(gp) ? gp : gp ? [gp] : []);
+  let rt = user.relationshipType;
+  renderRelationshipTypeBadges(Array.isArray(rt) ? rt : rt ? [rt] : []);
 
   // Distance slider
   const distanceSlider = document.getElementById('distanceSlider');
@@ -241,7 +305,7 @@ function setupProfileListeners() {
   }
   setupNavBar();
 
-  // (ajoute ici tous les autres listeners pour bio, username, langues, genres, etc. si besoin)
+  // (ajoute ici tous les autres listeners pour bio, username, langues, etc. si besoin)
 }
 
 // DOM ready
