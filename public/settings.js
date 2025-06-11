@@ -47,9 +47,11 @@ function fillProfileFields(user) {
       ? `${user.name}, ${getUserAge(user.dateOfBirth)}`
       : user.name || "";
 
-  // Bio
+  // Bio (si input présent dans une version future)
   const bioInput = document.getElementById('bioInput');
   if (bioInput) bioInput.value = user.bio || "";
+  const bioValue = document.getElementById('bioValue');
+  if (bioValue) bioValue.textContent = user.bio || "";
 
   // Date de naissance (lecture seule)
   const birthdateValue = document.getElementById('birthdateValue');
@@ -61,27 +63,35 @@ function fillProfileFields(user) {
   // Nom d'utilisateur (email ou username selon ton backend)
   const usernameInput = document.getElementById('usernameInput');
   if (usernameInput) usernameInput.value = user.username || user.email || "";
+  const usernameValue = document.getElementById('usernameValue');
+  if (usernameValue) usernameValue.textContent = user.username || user.email || "";
 
-  // Genres préférés
-  const genderInput = document.getElementById('genderInput');
-  if (genderInput && user.genderPreference) {
-    // Si multi-select : split ou mettre tableau directement selon backend
-    Array.from(genderInput.options).forEach(option => {
-      option.selected = Array.isArray(user.genderPreference)
-        ? user.genderPreference.includes(option.value)
-        : user.genderPreference === option.value;
+  // Genres préférés (pour affichage badge)
+  const genderBadges = document.getElementById('genderBadges');
+  if (genderBadges) {
+    genderBadges.innerHTML = "";
+    if (user.genderPreference === "Male" || user.genderPreference === "Both")
+      genderBadges.innerHTML += `<span class="badge">Homme</span>`;
+    if (user.genderPreference === "Female" || user.genderPreference === "Both")
+      genderBadges.innerHTML += `<span class="badge">Femme</span>`;
+  }
+
+  // Langues parlées (badges)
+  const languagesBadges = document.getElementById('languagesBadges');
+  if (languagesBadges) {
+    languagesBadges.innerHTML = "";
+    (user.languages || []).forEach(lang => {
+      languagesBadges.innerHTML += `<span class="badge">${lang}</span>`;
     });
   }
 
-  // Langues parlées
-  const languagesInput = document.getElementById('languagesInput');
-  if (languagesInput)
-    languagesInput.value = (user.languages || []).join(', ');
-
-  // Préférence relationnelle
-  const relationshipInput = document.getElementById('relationshipInput');
-  if (relationshipInput)
-    relationshipInput.value = user.relationshipType || "";
+  // Préférence relationnelle (badges)
+  const relationshipBadges = document.getElementById('relationshipBadges');
+  if (relationshipBadges) {
+    relationshipBadges.innerHTML = "";
+    if (user.relationshipType)
+      relationshipBadges.innerHTML = `<span class="badge">${user.relationshipType}</span>`;
+  }
 
   // Distance slider
   const distanceSlider = document.getElementById('distanceSlider');
@@ -158,74 +168,39 @@ async function updateProfile(payload, token) {
   }
 }
 
-// Installe les listeners sur tous les champs modifiables
+// Installe les listeners sur tous les champs modifiables et sliders
 function setupProfileListeners() {
   const token = getToken();
 
-  // Bio
-  const bioInput = document.getElementById('bioInput');
-  if (bioInput) {
-    bioInput.addEventListener('change', async (e) => {
-      await updateProfile({ bio: e.target.value }, token);
-    });
-  }
-
-  // Nom d'utilisateur
-  const usernameInput = document.getElementById('usernameInput');
-  if (usernameInput) {
-    usernameInput.addEventListener('change', async (e) => {
-      await updateProfile({ username: e.target.value }, token);
-    });
-  }
-
-  // Genres préférés (select multiple)
-  const genderInput = document.getElementById('genderInput');
-  if (genderInput) {
-    genderInput.addEventListener('change', async (e) => {
-      // Multi-select : tableau, single-select : string
-      const values = Array.from(genderInput.selectedOptions).map(opt => opt.value);
-      await updateProfile({ genderPreference: genderInput.multiple ? values : values[0] || null }, token);
-    });
-  }
-
-  // Langues parlées
-  const languagesInput = document.getElementById('languagesInput');
-  if (languagesInput) {
-    languagesInput.addEventListener('change', async (e) => {
-      const langs = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-      await updateProfile({ languages: langs }, token);
-    });
-  }
-
-  // Préférence de relation
-  const relationshipInput = document.getElementById('relationshipInput');
-  if (relationshipInput) {
-    relationshipInput.addEventListener('change', async (e) => {
-      await updateProfile({ relationshipType: e.target.value }, token);
-    });
-  }
-
-  // Distance (slider)
+  // Distance slider (affichage dynamique + MAJ backend)
   const distanceSlider = document.getElementById('distanceSlider');
   const distanceValue = document.getElementById('distanceValue');
-  if (distanceSlider) {
+  if (distanceSlider && distanceValue) {
     distanceSlider.addEventListener('input', function () {
-      if (distanceValue) distanceValue.textContent = `${this.value} km`;
+      distanceValue.textContent = `${this.value} km`;
     });
     distanceSlider.addEventListener('change', async (e) => {
       await updateProfile({ distanceMax: Number(e.target.value) }, token);
     });
+    // Affichage initial
+    distanceValue.textContent = `${distanceSlider.value} km`;
   }
 
-  // Age recherché (sliders min et max)
+  // Double slider âge recherché (affichage dynamique + MAJ backend)
   const ageMinSlider = document.getElementById('ageMinSlider');
   const ageMaxSlider = document.getElementById('ageMaxSlider');
   const ageRangeValue = document.getElementById('ageRangeValue');
   function updateAgeRange() {
-    let min = parseInt(ageMinSlider.value);
-    let max = parseInt(ageMaxSlider.value);
-    if (min > max) { if (this === ageMinSlider) ageMaxSlider.value = min; else ageMinSlider.value = max; min = Math.min(min, max); max = Math.max(min, max);}
-    if (ageRangeValue) ageRangeValue.textContent = `${min} - ${max} ans`;
+    let min = parseInt(ageMinSlider.value, 10);
+    let max = parseInt(ageMaxSlider.value, 10);
+    if (min > max) {
+      if (this === ageMinSlider) ageMaxSlider.value = min;
+      else ageMinSlider.value = max;
+      min = Math.min(min, max);
+      max = Math.max(min, max);
+    }
+    if (ageRangeValue)
+      ageRangeValue.textContent = `${min} - ${max} ans`;
   }
   function saveAgePrefs() {
     let min = Number(ageMinSlider.value);
@@ -240,29 +215,33 @@ function setupProfileListeners() {
     updateAgeRange();
   }
 
-  // Gestion du submit général (Enregistrer)
-  const settingsForm = document.getElementById('settingsForm');
-  if (settingsForm) {
-    settingsForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        bio: bioInput ? bioInput.value : undefined,
-        username: usernameInput ? usernameInput.value : undefined,
-        genderPreference: genderInput
-          ? (genderInput.multiple
-            ? Array.from(genderInput.selectedOptions).map(opt => opt.value)
-            : genderInput.value)
-          : undefined,
-        languages: languagesInput ? languagesInput.value.split(',').map(s => s.trim()).filter(Boolean) : undefined,
-        relationshipType: relationshipInput ? relationshipInput.value : undefined,
-        distanceMax: distanceSlider ? Number(distanceSlider.value) : undefined,
-        preferences: (ageMinSlider && ageMaxSlider)
-          ? { ageRange: { min: Number(ageMinSlider.value), max: Number(ageMaxSlider.value) } }
-          : undefined,
-      };
-      await updateProfile(payload, token);
+  // Gestion nav bar (activer bouton profil + icônes dynamiques)
+  function setupNavBar() {
+    document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+    const navProfile = document.getElementById('navProfile');
+    if (navProfile) navProfile.classList.add('active');
+
+    document.querySelectorAll('.bottom-nav .nav-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => {
+          b.classList.remove('active');
+          const img = b.querySelector('img.nav-icon');
+          if(img) img.src = img.getAttribute('data-inactive');
+        });
+        this.classList.add('active');
+        const img = this.querySelector('img.nav-icon');
+        if(img) img.src = img.getAttribute('data-active');
+      });
     });
+    const profileBtn = document.getElementById('navProfile');
+    if (profileBtn) {
+      const img = profileBtn.querySelector('img.nav-icon');
+      if (img) img.src = img.getAttribute('data-active');
+    }
   }
+  setupNavBar();
+
+  // (ajoute ici tous les autres listeners pour bio, username, langues, genres, etc. si besoin)
 }
 
 // DOM ready
