@@ -27,16 +27,16 @@ const UserSchema = new mongoose.Schema({
     },
   },
   relationshipType: {
-    type: String,
-    enum: ["Long terme", "Court terme", "Pour le fun"],
-    default: "Long terme",
-  },
+  type: [String],
+  enum: ["Long terme", "Court terme", "Pour le fun"],
+  default: ["Long terme"]
+},
   dateOfBirth: { type: Date },
-  genderPreference: {
-    type: String,
-    enum: ["Male", "Female", "Both"],
-    default: "Both",
-  },
+ genderPreference: {
+  type: [String],
+  enum: ["Male", "Female", "Both"],
+  default: ["Both"]
+},
   likes: [
     { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   ],
